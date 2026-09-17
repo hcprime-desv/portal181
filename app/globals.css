@@ -122,6 +122,72 @@ body {
 .menu a:hover {
   color: var(--blue);
 }
+/* Dropdown do menu (Página com `submenu` no hcCore) — <details> nativo,
+   estilizado pra parecer um item de menu normal com uma seta. */
+.nav-dropdown {
+  position: relative;
+}
+.nav-dropdown summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.nav-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+.nav-dropdown summary::after {
+  content: "▾";
+  font-size: 10px;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+.nav-dropdown[open] summary::after {
+  transform: rotate(-180deg);
+}
+.nav-dropdown summary:hover {
+  color: var(--blue);
+}
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 0;
+  background: var(--navy);
+  border-radius: 10px;
+  min-width: 220px;
+  padding: 6px;
+  box-shadow: var(--shadow);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+}
+.nav-dropdown-menu a {
+  color: #fff;
+  font-weight: 600;
+  font-size: 13.5px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.nav-dropdown-menu a:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+/* Grupo no menu mobile (mesma origem, sem dropdown — já é uma lista) */
+.mobile-nav-grupo {
+  display: flex;
+  flex-direction: column;
+}
+.mobile-nav-grupo-titulo {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin-top: 10px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
 
 /* Hero — overlay escuro por cima da foto de fundo (public/images/hero-bg.jpg),
    pra manter o texto branco/vermelho legível em qualquer foto usada. */

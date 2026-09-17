@@ -52,6 +52,10 @@ export interface Pagina {
   imagemUrl?: string;
   linkUrl?: string;
   linkTexto?: string;
+  // Só relevante quando local === "Menu" — páginas com o mesmo texto aqui
+  // viram um único dropdown no cabeçalho (ver Header.tsx), em vez de links
+  // soltos. Vazio/ausente = link direto no menu, comportamento de sempre.
+  submenu?: string;
 }
 
 // Popup/banner do site, cadastrado no hcCore (dados/{tenant}/avisos).

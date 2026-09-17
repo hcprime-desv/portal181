@@ -30,6 +30,13 @@ const LINKS_FINAL: { href: string; label: string; key: ChaveMenu }[] = [
 
 const mostrarNoMenu = (v?: boolean) => v !== false;
 
+// Item do menu principal: link direto, ou um grupo (dropdown) quando
+// várias Páginas compartilham o mesmo `submenu` no hcCore (ex: "Material
+// Divulgação" agrupando Cartaz 2024, Meio Ambiente...).
+type ItemMenu =
+  | { tipo: "link"; href: string; label: string }
+  | { tipo: "grupo"; label: string; itens: { href: string; label: string }[] };
+
 // baralhosIniciais/paginasIniciais vêm do layout (Server Component, SSR
 // real) — ver ProcuradosLista para a mesma ideia aplicada às páginas de
 // conteúdo.
@@ -60,17 +67,37 @@ export default function Header({
   // configurado entram no menu dinamicamente — não são fixos no código
   // (ver documentacao/conceito.txt e a inspiração em disquedenuncia.ssp.ba.gov.br).
   // Páginas com `local` "Menu" (cadastradas no hcCore) entram do mesmo
-  // jeito — as com "Rodapé" (ou sem `local`) ficam só no Footer.
+  // jeito — as com "Rodapé" (ou sem `local`) ficam só no Footer. Dentro
+  // dessas, quem tem `submenu` preenchido vira um dropdown (agrupado por
+  // esse texto); quem não tem continua como link direto, igual sempre.
   const paginasMenu = todasPaginas.filter((p) => p.local === "Menu");
-  const links = [
-    ...LINKS_BASE.filter((l) => mostrarNoMenu(configuracao?.[l.key])).map(({ href, label }) => ({ href, label })),
+  const paginasMenuDiretas = paginasMenu.filter((p) => !p.submenu);
+  const gruposSubmenu = new Map<string, { href: string; label: string }[]>();
+  for (const p of paginasMenu) {
+    if (!p.submenu) continue;
+    const itens = gruposSubmenu.get(p.submenu) ?? [];
+    itens.push({ href: `/paginas/${p.slug}`, label: p.titulo });
+    gruposSubmenu.set(p.submenu, itens);
+  }
+
+  const itensMenu: ItemMenu[] = [
+    ...LINKS_BASE.filter((l) => mostrarNoMenu(configuracao?.[l.key])).map(
+      ({ href, label }): ItemMenu => ({ tipo: "link", href, label }),
+    ),
     ...(mostrarNoMenu(configuracao?.menuBaralhos)
-      ? baralhos.map((b) => ({ href: `/baralho/${b.slug}`, label: b.nome }))
+      ? baralhos.map((b): ItemMenu => ({ tipo: "link", href: `/baralho/${b.slug}`, label: b.nome }))
       : []),
     ...(mostrarNoMenu(configuracao?.menuPaginas)
-      ? paginasMenu.map((p) => ({ href: `/paginas/${p.slug}`, label: p.titulo }))
+      ? [
+          ...paginasMenuDiretas.map((p): ItemMenu => ({ tipo: "link", href: `/paginas/${p.slug}`, label: p.titulo })),
+          ...Array.from(gruposSubmenu.entries()).map(
+            ([label, itens]): ItemMenu => ({ tipo: "grupo", label, itens }),
+          ),
+        ]
       : []),
-    ...LINKS_FINAL.filter((l) => mostrarNoMenu(configuracao?.[l.key])).map(({ href, label }) => ({ href, label })),
+    ...LINKS_FINAL.filter((l) => mostrarNoMenu(configuracao?.[l.key])).map(
+      ({ href, label }): ItemMenu => ({ tipo: "link", href, label }),
+    ),
   ];
 
   return (
@@ -111,11 +138,27 @@ export default function Header({
           </Link>
 
           <nav className="menu">
-            {links.map((l) => (
-              <Link key={l.href} href={l.href}>
-                {l.label}
-              </Link>
-            ))}
+            {itensMenu.map((item) =>
+              item.tipo === "grupo" ? (
+                // <details> nativo — abre/fecha sem precisar de estado
+                // React nem listener de "clique fora" (mesma ideia da
+                // busca no topbar: menos JS, funciona de qualquer jeito).
+                <details key={item.label} className="nav-dropdown">
+                  <summary>{item.label}</summary>
+                  <div className="nav-dropdown-menu">
+                    {item.itens.map((sub) => (
+                      <Link key={sub.href} href={sub.href}>
+                        {sub.label}
+                      </Link>
+                    ))}
+                  </div>
+                </details>
+              ) : (
+                <Link key={item.href} href={item.href}>
+                  {item.label}
+                </Link>
+              ),
+            )}
           </nav>
 
           <button
@@ -131,16 +174,32 @@ export default function Header({
         {open && (
           <div className="wrap pb-4 hidden max-[900px]:block">
             <div className="flex flex-col gap-1">
-              {links.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="py-2 font-semibold"
-                >
-                  {l.label}
-                </Link>
-              ))}
+              {itensMenu.map((item) =>
+                item.tipo === "grupo" ? (
+                  <div key={item.label} className="mobile-nav-grupo">
+                    <span className="mobile-nav-grupo-titulo">{item.label}</span>
+                    {item.itens.map((sub) => (
+                      <Link
+                        key={sub.href}
+                        href={sub.href}
+                        onClick={() => setOpen(false)}
+                        className="py-2 pl-4 font-semibold block"
+                      >
+                        {sub.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="py-2 font-semibold"
+                  >
+                    {item.label}
+                  </Link>
+                ),
+              )}
             </div>
           </div>
         )}
