@@ -1,0 +1,23 @@
+{
+  "window.zoomLevel": 1,
+  "editor.fontSize": 12,
+  "editor.hover.enabled": "on",
+  "workbench.startupEditor": "none",
+  "explorer.compactFolders": false,
+  "terminal.integrated.fontSize": 12,
+  "editor.rulers": [80, 120],
+  "workbench.colorTheme": "OM Theme (Default Dracula Italic)",
+  "workbench.iconTheme": "material-icon-theme",
+  "files.maxMemoryForLargeFilesMB": 2048,
+  "search.followSymlinks": false,
+  "editor.quickSuggestions": {
+        "other": false,
+        "comments": false,
+        "strings": false
+  },
+  "terminal.integrated.rendererType": "dom",
+  "workbench.editor.enablePreview": false,
+  "editor.formatOnSave": false,
+  "editor.formatOnType": false,
+  "editor.suggestOnTriggerCharacters": false
+}

@@ -1,0 +1,169 @@
+Eu estruturaria o Portal 181 como o portal público oficial do Disque Denúncia, independente da plataforma operacional Denúncia 4.0 neste primeiro momento, mas já preparado para integração futura. A ideia é que ele não seja apenas um “site institucional”: seria um canal digital de denúncia, informação e colaboração com a segurança pública.
+
+Portal 181 — conceito
+
+Na página inicial, eu faria algo visualmente muito forte, simples e acessível, com o 181 como elemento central e uma mensagem como:
+
+“Sua informação pode fazer a diferença.”
+Denuncie de forma anônima, segura e protegida.
+
+Logo abaixo, três botões principais bem grandes:
+
+FAZER UMA DENÚNCIA | ACOMPANHAR PROTOCOLO | LIGAR 181
+
+A partir daí, a Home poderia apresentar blocos como:
+
+Faça sua denúncia — formulário digital anônimo, com relato, local do fato, envolvidos, veículos, fotos, vídeos, áudios e documentos.
+Procurados pela Justiça — foto, nome, informações autorizadas, órgão responsável e botão “Tenho uma informação”.
+Pessoas desaparecidas — foto, idade, local/data do desaparecimento e opção para informar localização ou pistas.
+Recompensas — casos em que exista recompensa oficialmente instituída, com regras e informações.
+Últimas notícias — resultados obtidos a partir de denúncias e ações das forças de segurança.
+Denúncias que deram resultado — apreensões, prisões, localização de desaparecidos, recuperação de veículos etc.
+Tipos de denúncia — violência contra a mulher, tráfico de drogas, homicídios, maus-tratos, corrupção, crimes ambientais, exploração infantil, roubo e furto, facções, armas, entre outros.
+Como funciona o 181 — explicando anonimato, segurança, fluxo da denúncia e proteção ao denunciante.
+Perguntas frequentes — “Meu número aparece?”, “Preciso me identificar?”, “Posso anexar fotos?”, “Como acompanho minha denúncia?” etc.
+A experiência de “Fazer uma denúncia”
+
+Eu evitaria aquele formulário enorme de uma única página. Faria um processo orientado, semelhante a um atendimento digital:
+
+1. O que você quer denunciar?
+O cidadão escolhe a categoria ou simplesmente começa a escrever.
+
+2. Conte o que aconteceu
+Campo livre para relato.
+
+3. Onde aconteceu?
+Município, bairro, endereço, referência e localização no mapa.
+
+4. Quem está envolvido?
+Nome, apelido, características físicas, telefone, redes sociais etc., quando conhecidos.
+
+5. Existe algum veículo envolvido?
+Placa, modelo, cor e características.
+
+6. Tem alguma prova ou informação complementar?
+Fotos, vídeos, documentos ou áudio.
+
+7. Revisar e enviar
+
+No final:
+
+Denúncia registrada com sucesso.
+Protocolo: 181-2026-00012345
+Guarde este número para acompanhar sua denúncia.
+Nenhum dado de identificação pessoal é obrigatório.
+
+Isso já deixaria o portal conceitualmente alinhado com o modelo de dados e o fluxo que vocês vêm estruturando para o Denúncia 4.0.
+
+Menu principal
+
+Eu faria algo enxuto:
+
+Início | Denuncie | Procurados | Desaparecidos | Recompensas | Resultados | Notícias | Sobre o 181
+
+E no canto superior direito:
+
+🔒 Acompanhar denúncia
+
+Área de acompanhamento
+
+O cidadão digitaria somente:
+
+Número do protocolo + código de segurança
+
+E receberia informações controladas, por exemplo:
+
+Recebida → Em análise → Encaminhada → Em apuração → Concluída
+
+Sem revelar investigação, equipe ou informações sensíveis.
+
+Também poderia existir:
+
+“Tenho novas informações sobre esta denúncia”
+
+Isso permitiria complementar uma denúncia já registrada sem revelar a identidade do denunciante.
+
+Procurados e desaparecidos
+
+Essa parte poderia tornar o Portal 181 bastante relevante para a população.
+
+Cada pessoa teria uma página própria:
+
+PROCURADO
+
+Foto
+Nome / apelido
+Idade
+Município
+Motivo da procura, quando publicável
+Órgão responsável
+
+Botão:
+
+“Tenho informações sobre esta pessoa”
+
+Ao clicar, o cidadão já entra no formulário com o código daquele procurado vinculado automaticamente à denúncia.
+
+O mesmo conceito vale para desaparecidos.
+
+Painel administrativo
+
+Apesar de ser um portal público, eu incluiria um pequeno CMS administrativo, separado da futura operação completa do Denúncia 4.0.
+
+Nele a Secretaria poderia administrar:
+
+Notícias, banners, procurados, desaparecidos, recompensas, resultados, categorias de denúncia, páginas institucionais, perguntas frequentes e conteúdos do portal.
+
+Também teria dashboard:
+
+Visitas ao portal | denúncias digitais | denúncias por município | denúncias por natureza | anexos recebidos | procurados mais visualizados | desaparecidos | conversão visitante → denúncia.
+
+Arquitetura que eu usaria comercialmente
+
+Eu chamaria a solução de algo como:
+
+PORTAL 181
+Portal Digital do Disque Denúncia
+
+E separaria claramente do Denúncia 4.0.
+
+O Portal 181 seria o produto adquirido agora com o recurso disponível. O Denúncia 4.0, posteriormente, seria a plataforma interna completa de atendimento, inteligência, difusão, acompanhamento e gestão.
+
+A arquitetura poderia ficar:
+
+Cidadão → Portal 181 → API → Banco do Portal
+
+e, futuramente:
+
+Portal 181 → API → Denúncia 4.0 → Inteligência → Difusão → Órgãos
+
+Assim vocês não jogam fora nenhum investimento quando a plataforma maior for contratada.
+
+Visualmente
+
+Eu usaria uma identidade institucional moderna, não com aparência de portal governamental antigo.
+
+No topo:
+
+181 | DISQUE DENÚNCIA
+
+Uma grande imagem relacionada à segurança pública e cidadania, mas sem exagerar em imagens policiais.
+
+No centro:
+
+VIU? SABE? DENUNCIE.
+Sua identidade não é necessária.
+Sua informação pode proteger uma vida.
+
+[ FAZER DENÚNCIA ]
+
+E abaixo cards grandes:
+
+🔍 Procurados
+👤 Desaparecidos
+🏆 Recompensas
+📢 Resultados do 181
+
+Isso transforma o Portal 181 praticamente em uma central digital de participação cidadã na segurança pública, e não somente numa página para colocar telefone e notícias.
+
+Para o cenário que você mencionou do recurso de aproximadamente R$ 150 mil, eu consideraria este escopo bastante apropriado como um produto independente: Portal 181 + CMS + denúncia digital + protocolo + procurados + desaparecidos + recompensas + resultados + API preparada para integração futura com o Denúncia 4.0.

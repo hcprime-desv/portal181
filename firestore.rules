@@ -1,0 +1,28 @@
+rules_version = '2';
+
+// Modelo de segurança REAL deste projeto (Portal181 + hcCore, mesmo
+// Firebase omnichannel-b4696): nenhuma das duas aplicações usa Firebase
+// Auth — o hcCore faz login próprio (coleção `login`, sem
+// `request.auth`) e agora o Portal181 também é 100% client-side (export
+// estático, ver next.config.js). Isso significa que uma regra do
+// Firestore NÃO TEM COMO diferenciar "o painel do hcCore gravando" de
+// "qualquer visitante anônimo" — os dois chegam ao Firestore exatamente
+// do mesmo jeito, sem token nenhum. Por isso `dados/{tenant}/**` precisa
+// ficar aberto pra leitura/escrita sem autenticação: é o preço de não ter
+// Firebase Auth em nenhuma das duas pontas, não uma escolha nova
+// introduzida aqui.
+//
+// Consequência CONSCIENTE e CONFIRMADA para `denuncias`: como não dá pra
+// restringir por autenticação, a coleção de denúncias também fica de
+// leitura pública — qualquer pessoa consegue ler relato/local/envolvidos
+// de qualquer denúncia (os protocolos são sequenciais, dá pra varrer um
+// por um). Se um dia isso precisar mudar, a solução de verdade é adicionar
+// autenticação real (Firebase Auth) nas duas aplicações — não dá pra
+// resolver só com regra de Firestore sem isso.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /dados/{tenant}/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
