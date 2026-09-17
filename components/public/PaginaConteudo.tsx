@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 import { subscribePaginaPorSlug } from "@/lib/data";
+import { markdownSanitizeSchema } from "@/lib/markdownSanitize";
 import type { Pagina } from "@/types/conteudo";
 
 // Listener em tempo real (onSnapshot), mesmo depois do shell estático já
@@ -44,10 +47,18 @@ export default function PaginaConteudo({ slug }: { slug: string }) {
           {/* Textarea no admin (hcCore), sem editor visual — o texto é
               Markdown de verdade (títulos, negrito/itálico, listas, links),
               interpretado aqui. remark-gfm dá listas de tarefa/tabelas/
-              strikethrough a mais. HTML embutido no texto NÃO é
-              renderizado (react-markdown não usa rehype-raw) — sai como
-              texto literal, não como risco de XSS. */}
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{pagina.conteudo}</ReactMarkdown>
+              strikethrough a mais. HTML embutido no texto (ex: <details>/
+              <summary> pra seção recolhível) É renderizado via rehype-raw,
+              mas sempre passando por rehype-sanitize (ver
+              lib/markdownSanitize.ts) — só uma lista de tags seguras é
+              permitida, tags como script/iframe e atributos "on..." (onclick
+              etc.) são removidos mesmo que apareçam no texto. */}
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSanitizeSchema]]}
+          >
+            {pagina.conteudo}
+          </ReactMarkdown>
 
           {pagina.linkUrl && (
             <a

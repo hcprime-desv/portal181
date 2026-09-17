@@ -3,6 +3,9 @@
 import { X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+import { markdownSanitizeSchema } from "@/lib/markdownSanitize";
 import type { Aviso } from "@/types/conteudo";
 
 // Modal de entrada — só pra avisos marcados "Urgente" no hcCore (ver
@@ -23,7 +26,12 @@ export default function AvisoModal({ aviso, onClose }: { aviso: Aviso; onClose: 
         <div className="aviso-modal-body">
           <h2>{aviso.titulo}</h2>
           <div className="markdown-body">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{aviso.mensagem}</ReactMarkdown>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSanitizeSchema]]}
+            >
+              {aviso.mensagem}
+            </ReactMarkdown>
           </div>
           {aviso.linkUrl && (
             <a

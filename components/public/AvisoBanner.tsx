@@ -3,6 +3,9 @@
 import { X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+import { markdownSanitizeSchema } from "@/lib/markdownSanitize";
 import type { Aviso } from "@/types/conteudo";
 
 // Banner flutuante — formato padrão pra avisos SEM "Urgente" marcado no
@@ -21,7 +24,12 @@ export default function AvisoBanner({ aviso, onClose }: { aviso: Aviso; onClose:
       <div className="aviso-banner-texto">
         <strong>{aviso.titulo}</strong>
         <div className="aviso-banner-msg markdown-body">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{aviso.mensagem}</ReactMarkdown>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSanitizeSchema]]}
+          >
+            {aviso.mensagem}
+          </ReactMarkdown>
         </div>
       </div>
       {aviso.linkUrl && (
