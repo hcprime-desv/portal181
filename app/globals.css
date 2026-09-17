@@ -341,6 +341,57 @@ body {
   max-width: 100%;
   border-radius: 8px;
 }
+/* <details>/<summary> vira um acordeão (visual de lista de categorias,
+   ex: naturezas de denúncia) em vez do triângulo cru do navegador — ver
+   lib/markdownSanitize.ts pra saber por que essa tag é permitida. A borda
+   fica só no <details> (a caixa toda); os filhos do conteúdo (parágrafo,
+   lista etc.) só ganham padding horizontal, pra não virar várias caixinhas
+   separadas quando o conteúdo tem mais de um bloco. */
+.markdown-body details {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 0 0 10px;
+  overflow: hidden;
+  background: #fff;
+}
+.markdown-body summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 18px;
+  background: #f4f6f8;
+  font-weight: 700;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.15s ease;
+}
+.markdown-body summary::-webkit-details-marker {
+  display: none;
+}
+.markdown-body summary::before {
+  content: "▾";
+  display: inline-block;
+  transition: transform 0.15s ease;
+  font-size: 12px;
+  color: var(--muted);
+}
+.markdown-body details[open] summary::before {
+  transform: rotate(-180deg);
+}
+.markdown-body summary:hover {
+  background: #eceff2;
+}
+.markdown-body details > *:not(summary) {
+  padding-left: 18px;
+  padding-right: 18px;
+}
+.markdown-body details > *:not(summary):first-of-type {
+  padding-top: 16px;
+}
+.markdown-body details > *:last-child {
+  padding-bottom: 16px;
+}
 .steps {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
