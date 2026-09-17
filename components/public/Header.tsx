@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 import type { Baralho } from "@/types/baralho";
 import type { Pagina, Configuracao } from "@/types/conteudo";
 import { subscribeBaralhosAtivos, subscribePaginasPublicadas } from "@/lib/data";
@@ -78,7 +78,17 @@ export default function Header({
       <div className="topbar">
         <div className="wrap">
           <span>{configuracao?.nomeOrgao ? `Portal Oficial — ${configuracao.nomeOrgao}` : "Portal Oficial do Disque Denúncia"}</span>
-          <Link href="/acompanhar">Acompanhar denúncia</Link>
+          <div className="topbar-right">
+            {/* GET puro pra /busca — funciona sem JS, resultado é
+                Server Component (ver app/(public)/busca/page.tsx). */}
+            <form action="/busca" method="get" role="search" className="topbar-busca">
+              <input type="search" name="q" placeholder="Buscar no site..." aria-label="Buscar no site" />
+              <button type="submit" aria-label="Buscar">
+                <Search size={14} />
+              </button>
+            </form>
+            <Link href="/acompanhar">Acompanhar denúncia</Link>
+          </div>
         </div>
       </div>
 

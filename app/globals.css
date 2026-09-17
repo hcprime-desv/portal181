@@ -39,6 +39,51 @@ body {
   padding-top: 8px;
   padding-bottom: 8px;
 }
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.topbar-busca {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 4px 4px 4px 12px;
+}
+.topbar-busca input {
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: #fff;
+  font-size: 12.5px;
+  width: 130px;
+}
+.topbar-busca input::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+.topbar-busca button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.topbar-busca button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+@media (max-width: 640px) {
+  .topbar-busca input {
+    width: 80px;
+  }
+}
 .site-header {
   background: #fff;
   border-bottom: 1px solid var(--border);
@@ -765,6 +810,62 @@ body {
 }
 .pagehead p {
   color: var(--muted);
+}
+
+/* Busca (app/(public)/busca/page.tsx + BuscaResultados.tsx) */
+.busca-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.busca-tab {
+  border: 0;
+  background: transparent;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.busca-tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.busca-tab:not(:disabled):hover {
+  color: var(--navy);
+}
+.busca-tab-ativa,
+.busca-tab-ativa:not(:disabled):hover {
+  color: var(--navy);
+  border-bottom-color: var(--blue);
+}
+.busca-lista {
+  display: flex;
+  flex-direction: column;
+}
+.busca-item {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.busca-item:last-child {
+  border-bottom: none;
+}
+.busca-item-titulo {
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+}
+.busca-item-titulo:hover {
+  text-decoration: underline;
+}
+.busca-item-resumo {
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: 4px 0 0;
 }
 
 /* Baralho (do Crime / Lilás / qualquer outro configurado) */
