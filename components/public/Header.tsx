@@ -7,18 +7,28 @@ import type { Baralho } from "@/types/baralho";
 import type { Pagina, Configuracao } from "@/types/conteudo";
 import { subscribeBaralhosAtivos, subscribePaginasPublicadas } from "@/lib/data";
 
-const LINKS_BASE = [
-  { href: "/", label: "Início" },
-  { href: "/denuncie", label: "Denuncie" },
-  { href: "/procurados", label: "Procurados" },
-  { href: "/desaparecidos", label: "Desaparecidos" },
+// `key` aponta pro campo de visibilidade correspondente em Configuracao
+// (Configurações do Portal181, no hcCore) — undefined é tratado como
+// "mostrar" (ver `mostrarNoMenu` abaixo). Tipado só com as chaves
+// booleanas de menu (não `keyof Configuracao` genérico) pra
+// `configuracao?.[l.key]` sair `boolean | undefined`, não `string |
+// boolean | undefined`.
+type ChaveMenu = "menuInicio" | "menuDenuncie" | "menuProcurados" | "menuDesaparecidos" | "menuRecompensas" | "menuNoticias" | "menuSobre";
+
+const LINKS_BASE: { href: string; label: string; key: ChaveMenu }[] = [
+  { href: "/", label: "Início", key: "menuInicio" },
+  { href: "/denuncie", label: "Denuncie", key: "menuDenuncie" },
+  { href: "/procurados", label: "Procurados", key: "menuProcurados" },
+  { href: "/desaparecidos", label: "Desaparecidos", key: "menuDesaparecidos" },
 ];
 
-const LINKS_FINAL = [
-  { href: "/recompensas", label: "Recompensas" },
-  { href: "/noticias", label: "Notícias" },
-  { href: "/sobre", label: "Sobre" },
+const LINKS_FINAL: { href: string; label: string; key: ChaveMenu }[] = [
+  { href: "/recompensas", label: "Recompensas", key: "menuRecompensas" },
+  { href: "/noticias", label: "Notícias", key: "menuNoticias" },
+  { href: "/sobre", label: "Sobre", key: "menuSobre" },
 ];
+
+const mostrarNoMenu = (v?: boolean) => v !== false;
 
 // baralhosIniciais/paginasIniciais vêm do layout (Server Component, SSR
 // real) — ver ProcuradosLista para a mesma ideia aplicada às páginas de
@@ -53,10 +63,14 @@ export default function Header({
   // jeito — as com "Rodapé" (ou sem `local`) ficam só no Footer.
   const paginasMenu = todasPaginas.filter((p) => p.local === "Menu");
   const links = [
-    ...LINKS_BASE,
-    ...baralhos.map((b) => ({ href: `/baralho/${b.slug}`, label: b.nome })),
-    ...paginasMenu.map((p) => ({ href: `/paginas/${p.slug}`, label: p.titulo })),
-    ...LINKS_FINAL,
+    ...LINKS_BASE.filter((l) => mostrarNoMenu(configuracao?.[l.key])).map(({ href, label }) => ({ href, label })),
+    ...(mostrarNoMenu(configuracao?.menuBaralhos)
+      ? baralhos.map((b) => ({ href: `/baralho/${b.slug}`, label: b.nome }))
+      : []),
+    ...(mostrarNoMenu(configuracao?.menuPaginas)
+      ? paginasMenu.map((p) => ({ href: `/paginas/${p.slug}`, label: p.titulo }))
+      : []),
+    ...LINKS_FINAL.filter((l) => mostrarNoMenu(configuracao?.[l.key])).map(({ href, label }) => ({ href, label })),
   ];
 
   return (

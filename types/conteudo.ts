@@ -78,6 +78,13 @@ export interface Aviso {
 // `corPrimaria`/`corSecundaria` viram as CSS vars --navy/--blue (ver
 // (public)/layout.tsx) só quando forem um hex válido — caso contrário o
 // site mantém as cores padrão definidas em globals.css.
+// Visibilidade de cada seção do menu (Header.tsx) — undefined (nunca
+// configurado) é tratado como "mostrar" em todo lugar que lê isso, pra
+// não sumir menu nenhum de um site já no ar antes dessa config existir.
+// `menuBaralhos`/`menuPaginas` são chaves-mestre: ligam/desligam a SEÇÃO
+// inteira; quais baralhos (Baralho do Crime, Baralho Lilás...) ou páginas
+// aparecem dentro dela continua vindo do campo "Ativo"/"Local" de cada
+// item (Baralho.ativo, Pagina.local), não duplicado aqui.
 export interface Configuracao {
   nomeOrgao?: string;
   corPrimaria?: string;
@@ -87,4 +94,13 @@ export interface Configuracao {
   logoUrl?: string;
   textoRodape?: string;
   imagemFundoUrl?: string;
+  menuInicio?: boolean;
+  menuDenuncie?: boolean;
+  menuProcurados?: boolean;
+  menuDesaparecidos?: boolean;
+  menuBaralhos?: boolean;
+  menuPaginas?: boolean;
+  menuRecompensas?: boolean;
+  menuNoticias?: boolean;
+  menuSobre?: boolean;
 }
