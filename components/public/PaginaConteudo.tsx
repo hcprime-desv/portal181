@@ -34,6 +34,11 @@ export default function PaginaConteudo({ slug }: { slug: string }) {
         <h1>{pagina.titulo}</h1>
       </div>
 
+      {pagina.imagemUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={pagina.imagemUrl} alt={pagina.titulo} className="pagina-banner-img" />
+      )}
+
       <div className="panel">
         <div className="panel-body markdown-body">
           {/* Textarea no admin (hcCore), sem editor visual — o texto é
@@ -43,6 +48,18 @@ export default function PaginaConteudo({ slug }: { slug: string }) {
               renderizado (react-markdown não usa rehype-raw) — sai como
               texto literal, não como risco de XSS. */}
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{pagina.conteudo}</ReactMarkdown>
+
+          {pagina.linkUrl && (
+            <a
+              href={pagina.linkUrl}
+              className="btn btn-blue"
+              style={{ marginTop: 16 }}
+              target={pagina.linkUrl.startsWith("http") ? "_blank" : undefined}
+              rel={pagina.linkUrl.startsWith("http") ? "noreferrer" : undefined}
+            >
+              {pagina.linkTexto || "Saiba mais"}
+            </a>
+          )}
         </div>
       </div>
     </div>

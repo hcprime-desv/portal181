@@ -250,6 +250,16 @@ body {
 .panel-body {
   padding: 24px;
 }
+/* Banner opcional no topo de uma Página institucional (imagemUrl,
+   cadastrado no hcCore) — largura total, antes do painel de conteúdo. */
+.pagina-banner-img {
+  width: 100%;
+  max-height: 340px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  display: block;
+}
 /* Conteúdo Markdown das Páginas institucionais (PaginaConteudo.tsx) —
    estilo consistente com o resto do site (mesmas variáveis de cor). */
 .markdown-body h1,

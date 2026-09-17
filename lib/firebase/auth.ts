@@ -28,7 +28,20 @@
 import { getAuth, onAuthStateChanged, signInAnonymously, type User } from "firebase/auth";
 import { firebaseApp } from "./client";
 
-export const auth = getAuth(firebaseApp);
+// getAuth() valida a config na hora (síncrono) e lança `auth/invalid-api-key`
+// se NEXT_PUBLIC_FIREBASE_API_KEY estiver ausente/inválida (ex: variável de
+// ambiente esquecida no host) — sem o try/catch, isso derruba o build inteiro
+// (qualquer página que importe este módulo, direto ou via ChatWidget), o que
+// contradiz a premissa do arquivo: auth anônimo tem que ser best-effort.
+let auth: ReturnType<typeof getAuth> | null = null;
+try {
+  auth = getAuth(firebaseApp);
+} catch (err) {
+  console.warn(
+    "Firebase Auth indisponível (config ausente/inválida, ex: NEXT_PUBLIC_FIREBASE_API_KEY) — seguindo sem sessão:",
+    err,
+  );
+}
 
 let sessaoPronta: Promise<User | null> | null = null;
 
@@ -37,22 +50,28 @@ let sessaoPronta: Promise<User | null> | null = null;
 // se não der. Chamar antes de leitura/escrita de denúncia ou chat, mas
 // sem bloquear o fluxo no resultado: é só uma tentativa oportunista.
 export function ensureAnonAuth(): Promise<User | null> {
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" || !auth) {
     // SSR (generateStaticParams/Server Components) nunca lida com
     // denúncia/chat — não deveria chamar isso, mas não deixa quebrar o build.
+    // `!auth` cobre o caso de getAuth() ter falhado acima.
     return Promise.resolve(null);
   }
   if (sessaoPronta) return sessaoPronta;
 
+  // Variável local pra manter o tipo estreitado (não-nulo) dentro do
+  // closure — `auth` é `let` de módulo, TS não garante que continue
+  // não-nulo dentro do callback do Promise sem isso.
+  const authAtual = auth;
+
   sessaoPronta = new Promise<User | null>((resolve) => {
     const unsub = onAuthStateChanged(
-      auth,
+      authAtual,
       (user) => {
         if (user) {
           unsub();
           resolve(user);
         } else {
-          signInAnonymously(auth).catch((err) => {
+          signInAnonymously(authAtual).catch((err) => {
             console.warn(
               "Firebase Auth anônimo indisponível (provedor \"Anônimo\" desabilitado no console? " +
                 "veja Authentication > Sign-in method) — seguindo sem sessão:",

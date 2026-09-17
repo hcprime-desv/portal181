@@ -1,0 +1,26 @@
+git add .
+git commit -m "mensagem da mudança"
+git push
+
+Passo a passo pra subir atualizações
+Toda vez que você alterar algum arquivo do projeto:
+
+1. Ver o que mudou (opcional, só pra conferir)
+
+
+git status
+2. Adicionar as mudanças
+
+
+git add .
+3. Criar o commit (descrevendo o que mudou)
+
+
+git commit -m "descreva a mudança aqui"
+4. Enviar pro GitHub
+
+
+git push
+Isso é tudo — não precisa repetir git remote add nem -u origin main de novo, só na primeira vez. Nas próximas, é só add → commit → push.
+
+Atenção: seu remote (git remote -v) está de volta pra github.com/hcprime-desv/portal181.git sem token embutido — se ainda não resolveu o bloqueio de permissão da organização (aprovação de admin) ou não trocou pro repositório pessoal, o git push vai voltar a dar o mesmo erro 403 de antes. Antes de repetir as atualizações, confirma qual caminho você seguiu pra resolver aquilo.

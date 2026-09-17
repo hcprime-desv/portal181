@@ -49,6 +49,9 @@ export interface Pagina {
   conteudo: string;
   status: "Publicado" | "Rascunho";
   local?: "Rodapé" | "Menu";
+  imagemUrl?: string;
+  linkUrl?: string;
+  linkTexto?: string;
 }
 
 // Popup/banner do site, cadastrado no hcCore (dados/{tenant}/avisos).
