@@ -1,16 +1,14 @@
-// Camada de dados client-side, no mesmo padrão do `shared/gen/gen.ts` do
-// hcCore (getAll com onSnapshot, addKey via transação pra IDs
-// sequenciais) — faz sentido reusar esse padrão aqui porque agora as duas
-// aplicações leem/escrevem do mesmo jeito: direto do navegador, sem
-// servidor no meio (ver next.config.js: output "export").
+// Camada de dados do site e do /admin, no mesmo padrão do `gen` dos painéis
+// (@hc/nucleo/gen: getAll com onSnapshot, ids sequenciais pelo mesmo
+// contador `incrementKey`) — o painel do Disque Denúncia (DD360) e este site
+// gravam no mesmo banco sem colidir ids.
 //
-// Diferente do hcCore (onde `path` vem do login e pode mudar por
-// cliente), aqui o tenant é fixo por implantação: `NEXT_PUBLIC_PORTAL181_PATH`
-// (env, ex: "DDBA" — case-sensitive, confira o `path` real do cliente
-// Portal181 na coleção `cliente` do hcCore).
+// O tenant é fixo por implantação: `NEXT_PUBLIC_PORTAL181_PATH` (env, hoje
+// "PORTAL181" — case-sensitive, é o `path` do cliente na coleção `cliente`).
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -29,6 +27,19 @@ import { db, storage } from "./client";
 
 const TENANT_PATH = process.env.NEXT_PUBLIC_PORTAL181_PATH;
 
+// Datas SEMPRE em milissegundos (regra do dono, 06/11/2026): Date e
+// Timestamp antigo viram número ao gravar e ao ler (o servidor também só
+// pode repassar dado simples aos componentes do navegador).
+function simples<T>(v: T): T {
+  if (v && typeof v === "object") {
+    if (typeof (v as any).toMillis === "function") return (v as any).toMillis();
+    if (v instanceof Date) return v.getTime() as any;
+    if (Array.isArray(v)) return v.map(simples) as any;
+    return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, simples(x)])) as T;
+  }
+  return v;
+}
+
 function tenantColRef(colecao: string) {
   if (!TENANT_PATH) {
     throw new Error(
@@ -39,10 +50,10 @@ function tenantColRef(colecao: string) {
 }
 
 // Listener em tempo real de uma coleção inteira — mesmo formato do
-// `getAll` do hcCore.
+// `getAll` dos painéis.
 export function getAll(colecao: string, callback: (docs: any[]) => void): Unsubscribe {
   return onSnapshot(tenantColRef(colecao), (snap) => {
-    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    callback(snap.docs.map((d) => (simples({ id: d.id, ...d.data() }))));
   });
 }
 
@@ -50,12 +61,12 @@ export function getAll(colecao: string, callback: (docs: any[]) => void): Unsubs
 // "escutando" mudanças, só ler uma vez (ex: páginas de conteúdo público).
 export async function getAllOnce(colecao: string): Promise<any[]> {
   const snap = await getDocs(tenantColRef(colecao));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => (simples({ id: d.id, ...d.data() })));
 }
 
 export async function getDocOnce(colecao: string, id: string): Promise<any | null> {
   const snap = await getDoc(doc(tenantColRef(colecao), id));
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  return snap.exists() ? simples({ id: snap.id, ...snap.data() }) : null;
 }
 
 // Listener em tempo real de um único doc — usado por quem já tem o id em
@@ -63,11 +74,11 @@ export async function getDocOnce(colecao: string, id: string): Promise<any | nul
 // de status feitas na apuração operacional sem precisar recarregar.
 export function getDocOn(colecao: string, id: string, callback: (doc: any | null) => void): Unsubscribe {
   return onSnapshot(doc(tenantColRef(colecao), id), (snap) => {
-    callback(snap.exists() ? { id: snap.id, ...snap.data() } : null);
+    callback(snap.exists() ? simples({ id: snap.id, ...snap.data() }) : null);
   });
 }
 
-// Contador sequencial por coleção — mesma mecânica do `addKey` do hcCore
+// Contador sequencial por coleção — mesma mecânica do `addKey` do @hc/nucleo
 // (transação sobre dados/{tenant}/incrementKey/{tabela}), mas o Portal181
 // usa isso só indiretamente: o protocolo de denúncia tem formato próprio
 // (181-AAAA-NNNNNNNN, ver lib/protocolo.ts), então o número sequencial
@@ -84,8 +95,36 @@ export async function addKey(tabela: string): Promise<number> {
   });
 }
 
+// Grava um registro novo com id sequencial (o `onSaveIncrement` dos
+// painéis): devolve o id. Campos `undefined` saem (o Firestore recusa).
+export async function salvarNovo(colecao: string, data: Record<string, any>): Promise<string> {
+  const id = String(await addKey(colecao));
+  await setDoc(doc(tenantColRef(colecao), id), simples(limpar({ ...data, created_at: Date.now() })));
+  return id;
+}
+
+// Atualiza campos de um registro (campos `undefined` saem).
+export async function salvarAlteracao(colecao: string, id: string, data: Record<string, any>): Promise<void> {
+  const { id: _ignorado, ...resto } = data;
+  await setDoc(doc(tenantColRef(colecao), id), simples(limpar({ ...resto, updated_at: Date.now() })), { merge: true });
+}
+
+export async function excluirDoc(colecao: string, id: string): Promise<void> {
+  await deleteDoc(doc(tenantColRef(colecao), id));
+}
+
+// Leitura pontual com um filtro de igualdade (ex.: usuário pelo login).
+export async function getFilterOnce(colecao: string, campo: string, valor: any): Promise<any[]> {
+  const snap = await getDocs(query(tenantColRef(colecao), where(campo, "==", valor)));
+  return snap.docs.map((d) => (simples({ id: d.id, ...d.data() })));
+}
+
+function limpar(data: Record<string, any>): Record<string, any> {
+  return Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined));
+}
+
 export async function criarDocComId(colecao: string, id: string, data: any): Promise<void> {
-  await setDoc(doc(tenantColRef(colecao), id), data);
+  await setDoc(doc(tenantColRef(colecao), id), simples(data));
 }
 
 // Cria com ID automático do Firestore (addDoc) — diferente de
@@ -93,12 +132,12 @@ export async function criarDocComId(colecao: string, id: string, data: any): Pro
 // mensagens de chat, onde cada uma já é referenciada só pelo campo
 // `idChat`, não pelo próprio id do doc).
 export async function criarDoc(colecao: string, data: any): Promise<string> {
-  const ref = await addDoc(tenantColRef(colecao), data);
+  const ref = await addDoc(tenantColRef(colecao), simples(data));
   return ref.id;
 }
 
 export async function atualizarDoc(colecao: string, id: string, data: any): Promise<void> {
-  await updateDoc(doc(tenantColRef(colecao), id), data);
+  await updateDoc(doc(tenantColRef(colecao), id), simples(data));
 }
 
 // Incrementa um ou mais campos numéricos de um doc, criando-o com `merge`
@@ -114,7 +153,7 @@ export async function incrementarCampos(
   campos: Record<string, number>,
   extras: Record<string, any> = {},
 ): Promise<void> {
-  const dados: Record<string, any> = { ...extras };
+  const dados: Record<string, any> = simples({ ...extras });
   for (const [campo, valor] of Object.entries(campos)) {
     dados[campo] = increment(valor);
   }
@@ -123,7 +162,7 @@ export async function incrementarCampos(
 
 // Listener em tempo real com um filtro + ordenação — usado pra mensagens
 // de chat (filtra por `idChat`, ordena por `created_at`), mesmo padrão do
-// `getFilterOn` do hcCore.
+// `getFilterOn` dos painéis.
 export function getFilterOn(
   colecao: string,
   campo: string,
@@ -133,13 +172,13 @@ export function getFilterOn(
 ): Unsubscribe {
   const q = query(tenantColRef(colecao), where(campo, "==", valor), orderBy(ordenarPor));
   return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    callback(snap.docs.map((d) => (simples({ id: d.id, ...d.data() }))));
   });
 }
 
-// Upload pro Firebase Storage, mesmo padrão do `uploadFile` do hcCore
-// (shared/gen/gen.ts) — sobe em `uploads/{nome do arquivo}` e retorna a
-// URL pública. Usado pelos anexos da denúncia (lib/denunciaClient.ts).
+// Upload pro Firebase Storage, mesmo padrão do `uploadFile` dos painéis —
+// sobe em `uploads/{data}-{nome}` e retorna a URL pública. Usado pelos
+// anexos da denúncia e pelas imagens do /admin.
 export async function uploadFile(file: File): Promise<string> {
   const nome = file.name || `arquivo-${Date.now()}`;
   const storageRef = ref(storage, `uploads/${Date.now()}-${nome}`);

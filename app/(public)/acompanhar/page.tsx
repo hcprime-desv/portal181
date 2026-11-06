@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 import AcompanharForm from "@/components/denuncia/AcompanharForm";
+import Pagina from "@/components/public/CabecalhoPagina";
 
 export const metadata: Metadata = { title: "Acompanhar Denúncia" };
 
 export default function AcompanharPage() {
   return (
-    <div className="wrap">
-      <div className="pagehead">
-        <h1>Acompanhar Denúncia</h1>
-        <p>Consulte o andamento utilizando protocolo e código de segurança.</p>
-      </div>
+    <Pagina chamada="Protocolo" titulo="Acompanhar Denúncia" resumo="Consulte o andamento utilizando o protocolo e o código de segurança.">
       <AcompanharForm />
-    </div>
+    </Pagina>
   );
 }

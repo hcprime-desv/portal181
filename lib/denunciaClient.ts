@@ -1,15 +1,15 @@
 // Registro de denúncia — client-side (export estático, sem servidor, ver
 // next.config.js). Grava no MESMO formato que a apuração operacional do
-// hcCore usa (ver hcCore/src/components/disquedenuncia/chat/Denuncia.tsx
+// DD360 usa (ver apps/dd360/src/components/disquedenuncia/chat/Denuncia.tsx
 // #handleSalvar) — sem isso, a denúncia nunca apareceria em nenhuma tela
 // de apuração (elas filtram por `status_denuncia`, não existe outro jeito
 // de "entrar" no fluxo operacional). O id do documento também segue o
 // mesmo formato do resto do sistema (ver lib/protocolo.ts) — não existe
 // campo `protocolo` separado, é sempre o próprio id do doc, igual as
-// denúncias criadas internamente no hcCore.
+// denúncias criadas internamente no DD360.
 //
 // Gap conhecido: `dados`/`dinamicos` (campos específicos da natureza,
-// Natureza.fields no hcCore) ficam vazios — o wizard público não tem UI
+// Natureza.fields no DD360) ficam vazios — o wizard público não tem UI
 // pra campos dinâmicos por natureza ainda.
 //
 // Sem código de segurança (removido de propósito — ver types/denuncia.ts):
@@ -45,7 +45,7 @@ export async function registrarDenuncia(input: DenunciaInput): Promise<{ protoco
   const registro: DenunciaRegistro = {
     ...input,
 
-    // Operacional — mesmo shape do hcCore
+    // Operacional — mesmo shape do DD360
     status: "novo",
     status_denuncia: "aguardando revisão",
     origem: "portal181",

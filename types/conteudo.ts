@@ -7,6 +7,7 @@ export interface Procurado {
   motivo?: string;
   orgaoResponsavel?: string;
   fotoUrl?: string;
+  ativo?: boolean;
 }
 
 export interface Desaparecido {
@@ -16,6 +17,7 @@ export interface Desaparecido {
   municipio?: string;
   dataDesaparecimento?: string;
   fotoUrl?: string;
+  ativo?: boolean;
 }
 
 export interface Recompensa {
@@ -24,6 +26,7 @@ export interface Recompensa {
   descricao: string;
   valor: string;
   fotoUrl?: string;
+  ativo?: boolean;
 }
 
 export interface Noticia {
@@ -32,11 +35,24 @@ export interface Noticia {
   resumo?: string;
   data: string;
   imagemUrl?: string;
+  ativo?: boolean;
+}
+
+// Resultados (prisões/apreensões decorrentes de denúncias) — /admin →
+// Resultados. `id_natureza` aponta para dados/{tenant}/natureza.
+export interface Resultado {
+  id: string;
+  titulo: string;
+  descricao: string;
+  data?: string;
+  id_natureza?: string;
+  municipio?: string;
+  ativo?: boolean;
 }
 
 // CMS genérico de páginas institucionais (Sobre, Perguntas Frequentes
-// etc.), cadastrado no hcCore (dados/{tenant}/paginas). `conteudo` é
-// Markdown (textarea simples no admin, sem editor visual) — renderizado
+// etc.), cadastrado no /admin (dados/{tenant}/paginas). `conteudo` é
+// Markdown (editor com pré-visualização no /admin) — renderizado
 // de verdade no site via react-markdown (ver PaginaConteudo.tsx); HTML
 // embutido no texto não é interpretado (sai como texto literal). `local`
 // decide onde o link aparece no site: "Rodapé" (padrão) ou "Menu" (junto com
@@ -58,7 +74,7 @@ export interface Pagina {
   submenu?: string;
 }
 
-// Popup/banner do site, cadastrado no hcCore (dados/{tenant}/avisos).
+// Popup/banner do site, cadastrado no /admin (dados/{tenant}/avisos).
 // `urgente` decide o formato: true → modal de entrada (bloqueia a tela até
 // fechar, reservado pra alertas críticos); false/ausente → banner
 // flutuante, não bloqueia nada (ver components/public/AvisosClient.tsx).
@@ -75,13 +91,16 @@ export interface Aviso {
   ordem?: number;
 }
 
-// Doc único (dados/{tenant}/configuracoes/geral), cadastrado no hcCore
-// (Configuracoes.tsx do módulo Portal181) — nome do órgão, cores, contato
+export type TemaSite = "claro" | "escuro" | "automatico";
+
+// Doc único (dados/{tenant}/configuracoes/geral), editado em /admin →
+// Configuração do site — nome do órgão, cores, contato
 // e imagem de fundo da home, pra nunca ficar hardcoded assumindo
 // "Bahia"/"SSP-BA" ou uma foto fixa no código deste site (ver CLAUDE.md).
-// `corPrimaria`/`corSecundaria` viram as CSS vars --navy/--blue (ver
-// (public)/layout.tsx) só quando forem um hex válido — caso contrário o
-// site mantém as cores padrão definidas em globals.css.
+// Cores (só hex válido; senão vale o padrão do globals.css): `corPrimaria`
+// = fundo escuro (rodapé, menu do /admin) → --navy; `corSecundaria` =
+// principal (botões, links) → --blue; `corDestaque` → --green. `tema` e
+// `temaBotao` = tema claro/escuro, igual ao site padrão (p2pcorp).
 // Visibilidade de cada seção do menu (Header.tsx) — undefined (nunca
 // configurado) é tratado como "mostrar" em todo lugar que lê isso, pra
 // não sumir menu nenhum de um site já no ar antes dessa config existir.
@@ -98,6 +117,10 @@ export interface Configuracao {
   logoUrl?: string;
   textoRodape?: string;
   imagemFundoUrl?: string;
+  corDestaque?: string;
+  endereco?: string;
+  tema?: TemaSite;
+  temaBotao?: boolean;
   menuInicio?: boolean;
   menuDenuncie?: boolean;
   menuProcurados?: boolean;

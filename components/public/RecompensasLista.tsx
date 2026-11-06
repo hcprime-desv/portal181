@@ -19,6 +19,7 @@ export default function RecompensasLista({ dadosIniciais }: { dadosIniciais: Rec
 
   return (
     <div className="reward-list">
+      {recompensas.length === 0 && <div className="notice">Nenhuma recompensa divulgada no momento.</div>}
       {recompensas.map((r) => (
         <div className="reward" key={r.id}>
           <div className="photo">
@@ -28,8 +29,7 @@ export default function RecompensasLista({ dadosIniciais }: { dadosIniciais: Rec
                 src={r.fotoUrl}
                 alt={r.titulo}
                 className="photo-clicavel"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                onClick={() => setFotoAmpliada({ src: r.fotoUrl!, alt: r.titulo })}
+                                onClick={() => setFotoAmpliada({ src: r.fotoUrl!, alt: r.titulo })}
               />
             ) : (
               <User size={32} color="#7688a0" />

@@ -27,7 +27,7 @@ export default function AcompanharForm() {
   const captchaRef = useRef<CaptchaHandle>(null);
   // Só é setado depois de uma consulta com captcha válido — a partir daí
   // vira um listener (useEffect abaixo), então mudanças de status feitas
-  // na apuração operacional (hcCore) aparecem aqui sem precisar consultar
+  // na apuração operacional (DD360) aparecem aqui sem precisar consultar
   // de novo. O captcha protege a BUSCA inicial (desencoraja varredura de
   // protocolo em protocolo), não o acompanhamento em si.
   const [protocoloConfirmado, setProtocoloConfirmado] = useState<string | null>(null);

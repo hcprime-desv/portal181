@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { subscribeBaralhoPorSlug, subscribeCartasBaralho } from "@/lib/data";
 import type { Baralho, CartaBaralho } from "@/types/baralho";
 import BaralhoView from "./BaralhoView";
+import Pagina from "@/components/public/CabecalhoPagina";
 
 // Listener em tempo real (onSnapshot), mesmo depois do shell estático já
 // ter sido gerado em build (ver generateStaticParams em
@@ -30,25 +31,16 @@ export default function BaralhoConteudo({ slug }: { slug: string }) {
   }, [baralho?.id]);
 
   if (baralho === undefined) {
-    return <p style={{ color: "var(--muted)" }}>Carregando...</p>;
+    return <div className="container vazio">Carregando...</div>;
   }
 
   if (baralho === null) {
-    return <p style={{ color: "var(--muted)" }}>Baralho não encontrado.</p>;
+    return <div className="container vazio">Baralho não encontrado.</div>;
   }
 
   return (
-    <div className="wrap">
-      <div className="pagehead">
-        <h1>{baralho.nome}</h1>
-        <p>Ajude a localizar. Sua informação pode fazer a diferença.</p>
-      </div>
-
-      <div className="panel">
-        <div className="panel-body">
-          <BaralhoView baralho={baralho} cartas={cartas} />
-        </div>
-      </div>
-    </div>
+    <Pagina chamada="Baralho" titulo={baralho.nome} resumo="Ajude a localizar. Sua informação pode fazer a diferença.">
+      <BaralhoView baralho={baralho} cartas={cartas} />
+    </Pagina>
   );
 }

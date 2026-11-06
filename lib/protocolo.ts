@@ -3,14 +3,14 @@
 // acompanhar depois (sem código de segurança, ver types/denuncia.ts).
 //
 // Mesmo formato usado pelo resto do sistema pra chamados avulsos
-// (aaaaMMdd.NNNNNN.HHmmssSSS — ver generateIdUserDateTime no hcCore e
+// (aaaaMMdd.NNNNNN.HHmmssSSS — ver generateIdUserDateTime no DD360 e
 // gerarProtocoloAtendimentoApp no hcpesquisa) — antes este site usava um
 // formato próprio (181-AAAA-NNNNNNNN), mas isso deixava as denúncias
 // vindas do site com um "id" diferente das criadas internamente no
-// hcCore, dificultando reconhecer o padrão. "500000" no meio marca que a
+// DD360, dificultando reconhecer o padrão. "500000" no meio marca que a
 // denúncia nasceu no formulário público do site (100000 = app mobile
 // hcpesquisa, 300000 = chat do site — ver lib/chatClient.ts — outros
-// valores são de entradas internas do hcCore).
+// valores são de entradas internas do DD360).
 //
 // Sem contador sequencial: o timestamp com milissegundo já garante
 // unicidade na prática (mesma escolha do resto do sistema, sem

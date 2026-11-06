@@ -22,7 +22,7 @@ export interface ChatWidgetProps {
 }
 
 // Botão flutuante (canto inferior direito) que abre um chat com a Central
-// de Atendimento — mesmo modelo de dados do Atendimento real do hcCore
+// de Atendimento — mesmo modelo de dados do Atendimento real do DD360
 // (coleção `chats`/`messages`, ver lib/chatClient.ts), então uma conversa
 // aberta aqui cai na fila de um agente humano de verdade, exatamente como
 // o app mobile hcpesquisa (fonte da lógica portada aqui).

@@ -1,5 +1,5 @@
 // Status "público" (citizen-facing) — usado só pela barra de progresso do
-// /acompanhar. Não existe no schema operacional do hcCore (que usa
+// /acompanhar. Não existe no schema operacional do DD360 (que usa
 // `status`/`status_denuncia` com outro vocabulário, ver StatusOperacional
 // abaixo) — é derivado de `status_denuncia` na hora de exibir, não gravado
 // direto. Ver lib/statusDenuncia.ts.
@@ -11,9 +11,9 @@ export type StatusDenuncia =
   | "concluida";
 
 // Vocabulário real gravado no Firestore, o mesmo que a apuração
-// operacional do hcCore usa e filtra em cada tela (Supervisão/Análise/
+// operacional do DD360 usa e filtra em cada tela (Supervisão/Análise/
 // Apuração/Difusão) — ver
-// hcCore/src/components/disquedenuncia/chat/Denuncia.tsx#handleSalvar.
+// apps/dd360/src/components/disquedenuncia/chat/Denuncia.tsx#handleSalvar.
 // Sem isso, uma denúncia registrada aqui nunca apareceria em nenhuma tela
 // de apuração (elas filtram por `status_denuncia`, não por um status
 // "bonito" inventado pelo site).
@@ -42,19 +42,19 @@ export interface VeiculoDenuncia {
 // Mesmo shape do doc gravado em dados/{tenant}/anexos pela apuração
 // operacional (id, idDenuncia, nome, tipo, tamanho, dataUpload, url) —
 // aqui embutido dentro do próprio registro de denúncia (o site não
-// precisa de uma coleção separada, só o hcCore consome anexos daquele
+// precisa de uma coleção separada, só o DD360 consome anexos daquele
 // jeito hoje).
 export interface AnexoDenuncia {
   nome: string;
-  tipo: string; // MIME type do arquivo (ex: "image/jpeg") — igual ao que hcCore grava
-  tamanho: string; // formatado, ex: "1.2 MB" — mesmo formatBytes() do hcCore
+  tipo: string; // MIME type do arquivo (ex: "image/jpeg") — igual ao que DD360 grava
+  tamanho: string; // formatado, ex: "1.2 MB" — mesmo formatBytes() do DD360
   url: string;
   dataUpload: number;
 }
 
 export interface DenunciaInput {
   // Nome da natureza da denúncia — mesmo conceito/tabela usada pela
-  // apuração operacional no hcCore (dados/{tenant}/natureza), não uma
+  // apuração operacional no DD360 (dados/{tenant}/natureza), não uma
   // "categoria" própria do site. Ver lib/data.ts#listarNaturezas.
   natureza: string;
   relato: string;
@@ -83,8 +83,8 @@ export interface DenunciaRegistro extends DenunciaInput {
   // (components/common/Captcha.tsx) pra desencorajar bot de varredura,
   // não pra proteger um segredo pessoal.
 
-  // ── Campos operacionais (mesmo shape do hcCore) ─────────────────────
-  // "novo" fixo na criação, igual ao handleSalvar do hcCore — o valor
+  // ── Campos operacionais (mesmo shape do DD360) ─────────────────────
+  // "novo" fixo na criação, igual ao handleSalvar do DD360 — o valor
   // "público" (StatusDenuncia) é derivado de `status_denuncia`, nunca
   // gravado igual ao antigo enum.
   status: "novo";
@@ -96,7 +96,7 @@ export interface DenunciaRegistro extends DenunciaInput {
   update_at: null;
   time: number;
   // Campos dinâmicos específicos da natureza (Natureza.fields, ver
-  // hcCore) — o wizard público não coleta isso ainda (não tem UI pra
+  // DD360) — o wizard público não coleta isso ainda (não tem UI pra
   // campos dinâmicos por natureza), fica vazio por enquanto.
   dados: Record<string, any>;
   dinamicos: Record<string, any>;

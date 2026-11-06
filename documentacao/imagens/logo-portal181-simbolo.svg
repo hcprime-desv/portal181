@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="470" height="470" viewBox="0 0 470 470">
+  <defs>
+    <linearGradient id="sazul" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A73F0"/><stop offset="1" stop-color="#0B3E9E"/></linearGradient>
+    <linearGradient id="sazulT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1565E0"/><stop offset="1" stop-color="#0B3E9E"/></linearGradient>
+    <linearGradient id="sverde" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3BCB3F"/><stop offset="1" stop-color="#127A3A"/></linearGradient>
+    <linearGradient id="sverdeT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1FBF3A"/><stop offset="1" stop-color="#0F7A35"/></linearGradient>
+    <linearGradient id="schave" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1565E0"/><stop offset="1" stop-color="#0A2F78"/></linearGradient>
+    <linearGradient id="sarco" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1565E0"/><stop offset="1" stop-color="#3BCB3F"/></linearGradient>
+    <clipPath id="sesq"><rect x="0" y="0" width="200" height="470"/></clipPath>
+    <clipPath id="sdir"><rect x="200" y="0" width="200" height="470"/></clipPath>
+  </defs>
+  <style>
+    .nome { font-family: 'Baloo 2', 'Arial Rounded MT Bold', sans-serif; font-weight: 800; }
+    .slogan { font-family: 'Montserrat', 'Arial Black', sans-serif; font-weight: 800; fill: #0A3A8C; }
+  </style>
+  <g transform="translate(35,0)">
+    <g>
+      <path d="M200 12 L366 68 Q382 74 382 90 V222 Q382 362 200 458 Q18 362 18 222 V90 Q18 74 34 68 Z" fill="url(#sazul)" clip-path="url(#sesq)"/>
+      <path d="M200 12 L366 68 Q382 74 382 90 V222 Q382 362 200 458 Q18 362 18 222 V90 Q18 74 34 68 Z" fill="url(#sverde)" clip-path="url(#sdir)"/>
+      <path d="M18 222 Q18 362 200 458 L200 300 Z" fill="#000" opacity="0.18"/>
+      <path d="M382 222 Q382 362 200 458 L200 300 Z" fill="#000" opacity="0.10"/>
+      <path d="M200 40 L350 90 V222 Q350 340 200 424 Q50 340 50 222 V90 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="6"/>
+      
+      <rect x="86" y="128" width="228" height="190" rx="22" fill="#FFFFFF"/>
+      <rect x="86" y="128" width="228" height="44" rx="22" fill="url(#schave)"/>
+      <rect x="86" y="150" width="228" height="22" fill="url(#schave)"/>
+      <circle cx="114" cy="150" r="7" fill="#FFFFFF"/><circle cx="136" cy="150" r="7" fill="#FFFFFF" opacity="0.8"/><circle cx="158" cy="150" r="7" fill="#FFFFFF" opacity="0.6"/>
+      <rect x="108" y="190" width="70" height="56" rx="8" fill="url(#schave)" opacity="0.85"/>
+      <rect x="192" y="192" width="100" height="12" rx="6" fill="url(#schave)" opacity="0.7"/>
+      <rect x="192" y="214" width="84" height="12" rx="6" fill="url(#schave)" opacity="0.5"/>
+      <rect x="192" y="236" width="92" height="12" rx="6" fill="url(#schave)" opacity="0.5"/>
+      <rect x="108" y="264" width="184" height="12" rx="6" fill="url(#schave)" opacity="0.4"/>
+      <rect x="108" y="286" width="130" height="12" rx="6" fill="url(#schave)" opacity="0.4"/>
+    </g></g>
+</svg>

@@ -25,7 +25,7 @@ export default function ProcuradosLista({ dadosIniciais }: { dadosIniciais: Proc
   return (
     <>
       {procurados.length === 0 && (
-        <p style={{ color: "var(--muted)" }}>Nenhum procurado cadastrado no momento.</p>
+        <div className="notice">Nenhum procurado cadastrado no momento.</div>
       )}
       <div className="people-grid">
         {procurados.map((p) => (
@@ -38,8 +38,7 @@ export default function ProcuradosLista({ dadosIniciais }: { dadosIniciais: Proc
                   src={p.fotoUrl}
                   alt={p.nome}
                   className="photo-clicavel"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onClick={() => setFotoAmpliada({ src: p.fotoUrl!, alt: p.nome })}
+                                    onClick={() => setFotoAmpliada({ src: p.fotoUrl!, alt: p.nome })}
                 />
               ) : (
                 <User size={48} color="#7688a0" />
@@ -47,11 +46,11 @@ export default function ProcuradosLista({ dadosIniciais }: { dadosIniciais: Proc
             </div>
             <div className="person-info">
               <strong>{p.nome}</strong>
-              <p style={{ margin: "3px 0 8px", color: "rgba(255,255,255,0.85)" }}>
+              <p>
                 {p.motivo ?? "Informações oficiais disponíveis"}
                 {p.municipio ? ` · ${p.municipio}` : ""}
               </p>
-              <Link href={`/denuncie?procuradoId=${p.id}`} className="btn btn-outline">
+              <Link href={`/denuncie?procuradoId=${p.id}`} className="btn btn-white">
                 Tenho uma informação
               </Link>
             </div>

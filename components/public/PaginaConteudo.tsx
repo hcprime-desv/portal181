@@ -8,6 +8,7 @@ import rehypeSanitize from "rehype-sanitize";
 import { subscribePaginaPorSlug } from "@/lib/data";
 import { markdownSanitizeSchema } from "@/lib/markdownSanitize";
 import type { Pagina } from "@/types/conteudo";
+import { CabecalhoPagina, CorpoPagina } from "./CabecalhoPagina";
 
 // Listener em tempo real (onSnapshot), mesmo depois do shell estático já
 // ter sido gerado em build (ver generateStaticParams em
@@ -24,27 +25,24 @@ export default function PaginaConteudo({ slug }: { slug: string }) {
   }, [slug]);
 
   if (pagina === undefined) {
-    return <p style={{ color: "var(--muted)" }}>Carregando...</p>;
+    return <div className="container vazio">Carregando...</div>;
   }
 
   if (pagina === null) {
-    return <p style={{ color: "var(--muted)" }}>Página não encontrada.</p>;
+    return <div className="container vazio">Esta página não está mais publicada.</div>;
   }
 
   return (
-    <div className="wrap">
-      <div className="pagehead">
-        <h1>{pagina.titulo}</h1>
-      </div>
-
+    <>
+      <CabecalhoPagina titulo={pagina.titulo} />
+      <CorpoPagina estreito>
       {pagina.imagemUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={pagina.imagemUrl} alt={pagina.titulo} className="pagina-banner-img" />
+        <img src={pagina.imagemUrl} alt={pagina.titulo} className="pagina-img" />
       )}
 
-      <div className="panel">
-        <div className="panel-body markdown-body">
-          {/* Textarea no admin (hcCore), sem editor visual — o texto é
+        <div className="markdown-body">
+          {/* Editor do /admin (Markdown com pré-visualização) — o texto é
               Markdown de verdade (títulos, negrito/itálico, listas, links),
               interpretado aqui. remark-gfm dá listas de tarefa/tabelas/
               strikethrough a mais. HTML embutido no texto (ex: <details>/
@@ -63,7 +61,7 @@ export default function PaginaConteudo({ slug }: { slug: string }) {
           {pagina.linkUrl && (
             <a
               href={pagina.linkUrl}
-              className="btn btn-blue"
+              className="btn btn-primary"
               style={{ marginTop: 16 }}
               target={pagina.linkUrl.startsWith("http") ? "_blank" : undefined}
               rel={pagina.linkUrl.startsWith("http") ? "noreferrer" : undefined}
@@ -72,7 +70,7 @@ export default function PaginaConteudo({ slug }: { slug: string }) {
             </a>
           )}
         </div>
-      </div>
-    </div>
+      </CorpoPagina>
+    </>
   );
 }

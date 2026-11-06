@@ -1,6 +1,6 @@
 import type { StatusDenuncia, StatusOperacional } from "@/types/denuncia";
 
-// Traduz o vocabulário operacional real (o que a apuração no hcCore grava
+// Traduz o vocabulário operacional real (o que a apuração no DD360 grava
 // e filtra em cada tela — Supervisão/Análise/Apuração/Difusão) pro status
 // "bonito" que o cidadão vê no /acompanhar. Não existe campo salvo com o
 // vocabulário público — é sempre derivado na hora de exibir.

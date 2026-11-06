@@ -1,88 +1,55 @@
 "use client";
 
+// Faixa de cartões logo abaixo do banner (.faixa-cards/.cards8 do site
+// padrão) e as últimas notícias — começam com o dado do servidor (SSR) e
+// seguem ao vivo (baralhos e notícias editados no /admin aparecem na hora).
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Spade } from "lucide-react";
+import { ArrowRight, Megaphone, Search, Send, Spade, Trophy, UserSearch, ScanSearch } from "lucide-react";
 import { subscribeNoticias, subscribeBaralhosAtivos } from "@/lib/data";
+import { useConfiguracao } from "./AoVivo";
+import { Card8, CartaoNoticia } from "./Cartoes";
 import type { Noticia } from "@/types/conteudo";
 import type { Baralho } from "@/types/baralho";
 
-// dadosIniciais vem do Server Component (SSR real) — ver ProcuradosLista.
-export default function HomeDestaques({
-  noticiasIniciais,
-  baralhosIniciais,
-}: {
-  noticiasIniciais: Noticia[];
-  baralhosIniciais: Baralho[];
-}) {
+export default function HomeDestaques({ noticiasIniciais, baralhosIniciais }: { noticiasIniciais: Noticia[]; baralhosIniciais: Baralho[] }) {
+  const c = useConfiguracao();
   const [noticias, setNoticias] = useState<Noticia[]>(noticiasIniciais);
   const [baralhos, setBaralhos] = useState<Baralho[]>(baralhosIniciais);
 
-  useEffect(() => {
-    const unsubNoticias = subscribeNoticias((n) => setNoticias(n.slice(0, 4)));
-    const unsubBaralhos = subscribeBaralhosAtivos(setBaralhos);
-    return () => {
-      unsubNoticias();
-      unsubBaralhos();
-    };
-  }, []);
+  useEffect(() => subscribeNoticias((n) => setNoticias(n.slice(0, 3))), []);
+  useEffect(() => subscribeBaralhosAtivos(setBaralhos), []);
 
   return (
     <>
-      {baralhos.length > 0 && (
-        <section style={{ paddingTop: 0 }}>
-          <div className="wrap">
-            <div className="section-title">
+      <section className="container faixa-cards">
+        <div className="cards8 auto">
+          {c.menuDenuncie !== false && <Card8 icone={<Send size={22} />} cor="vermelho" titulo="Fazer denúncia" texto="Anônima, segura e protegida. Leva poucos minutos." href="/denuncie" saiba="Denunciar" />}
+          <Card8 icone={<Search size={22} />} cor="azul" titulo="Acompanhar" texto="Consulte o andamento com o protocolo e o código de segurança." href="/acompanhar" saiba="Consultar" />
+          {c.menuProcurados !== false && <Card8 icone={<ScanSearch size={22} />} cor="roxo" titulo="Procurados" texto="Pessoas procuradas pela Justiça. Ajude com informações." href="/procurados" />}
+          {c.menuDesaparecidos !== false && <Card8 icone={<UserSearch size={22} />} cor="verde" titulo="Desaparecidos" texto="Ajude famílias e autoridades a localizar pessoas desaparecidas." href="/desaparecidos" />}
+          {c.menuRecompensas !== false && <Card8 icone={<Trophy size={22} />} cor="laranja" titulo="Recompensas" texto="Casos com recompensas oficialmente divulgadas." href="/recompensas" />}
+          {c.menuNoticias !== false && <Card8 icone={<Megaphone size={22} />} cor="azul" titulo="Resultados do 181" texto="Resultados obtidos com a colaboração da população." href="/noticias" />}
+          {c.menuBaralhos !== false && baralhos.map((b) => (
+            <Card8 key={b.id} icone={<Spade size={22} />} cor="cinza" titulo={b.nome} texto={`Pessoas procuradas organizadas por naipe (${b.naipes.length} naipes).`} href={`/baralho/${b.slug}`} saiba="Ver cartas" />
+          ))}
+        </div>
+      </section>
+
+      {c.menuNoticias !== false && noticias.length > 0 && (
+        <section className="section">
+          <div className="container">
+            <div className="section-head">
               <div>
-                <h2>Baralhos</h2>
-                <p>Pessoas procuradas organizadas por naipe.</p>
+                <div className="eyebrow">Notícias</div>
+                <h2>Últimas <span className="destaque">notícias</span></h2>
               </div>
+              <Link href="/noticias" className="btn btn-outline">Ver todas <ArrowRight size={16} /></Link>
             </div>
-            <div className="cards">
-              {baralhos.map((b) => (
-                <Link href={`/baralho/${b.slug}`} className="card" key={b.id}>
-                  <div className="icon">
-                    <Spade size={22} />
-                  </div>
-                  <h3>{b.nome}</h3>
-                  <p>Veja os {b.naipes.length} naipes deste baralho.</p>
-                </Link>
-              ))}
-            </div>
+            <div className="grade-noticias">{noticias.map((n) => <CartaoNoticia key={n.id} n={n} />)}</div>
           </div>
         </section>
       )}
-
-      <section style={{ paddingTop: 0 }}>
-        <div className="wrap">
-          <div className="section-title">
-            <div>
-              <h2>Últimas notícias</h2>
-              <p>Resultados e informações do Disque Denúncia.</p>
-            </div>
-            <Link href="/noticias">Ver todas</Link>
-          </div>
-          <div className="news">
-            {noticias.map((n) => (
-              <div className="card" key={n.id}>
-                {n.imagemUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={n.imagemUrl}
-                    alt={n.titulo}
-                    className="thumb"
-                    style={{ width: "100%", objectFit: "cover" }}
-                  />
-                ) : (
-                  <div className="thumb" />
-                )}
-                <h4>{n.titulo}</h4>
-                <small>{n.data}</small>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </>
   );
 }

@@ -1,23 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Voltou a ser SSR/ISR de verdade (era a concepção original do projeto,
-  // ver CLAUDE.md) — a instalação passou a ser on-premise, num servidor
-  // Node.js da própria SSP/BA (`next start` a partir de `.next/standalone`),
-  // não mais export estático por FTP. Páginas de conteúdo (Procurados,
-  // Desaparecidos, Recompensas, Notícias, baralho/[slug], páginas/[slug])
-  // agora renderizam com dado real no HTML (SEO de verdade) e continuam
-  // recebendo atualização em tempo real no cliente via onSnapshot
-  // (lib/firebase/gen.ts#getAll) depois da hidratação — ver lib/data.ts
-  // (par listarX/subscribeX) e os componentes client em components/public.
+  // SSR/ISR de verdade, servidor Node próprio (`next start` ou
+  // `.next/standalone`) — ver CLAUDE.md. Páginas de conteúdo saem com dado
+  // real no HTML (SEO) e seguem ao vivo no navegador (onSnapshot).
   output: "standalone",
   reactStrictMode: true,
-  // Sem isso, o Next detecta um lockfile solto num diretório acima (fora
-  // deste projeto, ex: outro repo no mesmo D:\) e assume ELE como raiz do
-  // "monorepo" — o output de `output: "standalone"` sai aninhado num
-  // caminho absoluto gigante (`.next/standalone/<caminho todo até aqui>/`)
-  // em vez de `.next/standalone/` direto. Fixando a raiz aqui garante que
-  // o standalone sempre sai no formato esperado, não importa o que exista
-  // fora desta pasta.
+  // Os tipos são conferidos pelo `pnpm typecheck` (tsconfig.typecheck.json,
+  // que fixa o @types/react 19 deste site). A checagem do `next build` usa o
+  // tsconfig.json, onde next/lucide-react resolvem `react` para o @types/react
+  // 18 içado dos painéis no store do pnpm e acusam erro falso (o mapeamento
+  // não pode ir no tsconfig.json: o webpack passaria a importar os tipos).
+  typescript: { ignoreBuildErrors: true },
+  // Fixa a raiz do rastreio no próprio site: sem isso o standalone sai
+  // aninhado no caminho absoluto do monorepo.
   outputFileTracingRoot: __dirname,
 };
 

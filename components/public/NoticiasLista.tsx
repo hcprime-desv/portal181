@@ -2,36 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { subscribeNoticias } from "@/lib/data";
+import { CartaoNoticia } from "./Cartoes";
 import type { Noticia } from "@/types/conteudo";
 
-// dadosIniciais vem do Server Component (SSR real) — ver ProcuradosLista.
+// /noticias — mais novas primeiro, 9 por vez (como no site padrão). Começa
+// com o dado do servidor (SSR) e segue ao vivo.
+const POR_PAGINA = 9;
+
 export default function NoticiasLista({ dadosIniciais }: { dadosIniciais: Noticia[] }) {
   const [noticias, setNoticias] = useState<Noticia[]>(dadosIniciais);
-
-  useEffect(() => {
-    const unsub = subscribeNoticias(setNoticias);
-    return () => unsub();
-  }, []);
-
+  const [qtd, setQtd] = useState(POR_PAGINA);
+  useEffect(() => subscribeNoticias(setNoticias), []);
   return (
-    <div className="news">
-      {noticias.map((n) => (
-        <div className="card" key={n.id}>
-          {n.imagemUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={n.imagemUrl}
-              alt={n.titulo}
-              className="thumb"
-              style={{ width: "100%", objectFit: "cover" }}
-            />
-          ) : (
-            <div className="thumb" />
-          )}
-          <h4>{n.titulo}</h4>
-          <small>{n.data}</small>
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="grade-noticias">{noticias.slice(0, qtd).map((n) => <CartaoNoticia key={n.id} n={n} />)}</div>
+      {noticias.length === 0 && <div className="notice">Nenhuma notícia publicada ainda.</div>}
+      {noticias.length > qtd && (
+        <div className="centro"><button type="button" className="btn btn-outline" onClick={() => setQtd((q) => q + POR_PAGINA)}>Carregar mais</button></div>
+      )}
+    </>
   );
 }

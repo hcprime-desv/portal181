@@ -1,5 +1,5 @@
 // Chat do visitante com a Central de Atendimento — grava no MESMO schema
-// real usado pelo hcCore/hcpesquisa (coleção `chats` + `messages` plana
+// real usado pelo apps/dd360/hcpesquisa (coleção `chats` + `messages` plana
 // filtrada por `idChat`), pra uma conversa iniciada aqui aparecer
 // normalmente na fila de atendimento de um agente humano. Ver
 // hcpesquisa/src/features/atendimento/api.ts (referência completa desse
@@ -177,7 +177,7 @@ export async function enviarMidia(
 // Mesmo formato do app mobile (hcpesquisa/src/features/atendimento/api.ts
 // #enviarLocalizacao): sem Storage, `attachment.src` guarda "lat,lng" puro
 // e `type:"location"` marca o formato — mantém compatível com qualquer
-// tela que um dia renderize isso do lado do hcCore.
+// tela que um dia renderize isso do lado do DD360.
 export async function enviarLocalizacao(
   atendimento: Atendimento,
   visitante: { id: string; nome: string },

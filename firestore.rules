@@ -1,11 +1,11 @@
 rules_version = '2';
 
-// Modelo de segurança REAL deste projeto (Portal181 + hcCore, mesmo
+// Modelo de segurança REAL deste projeto (Portal181 + DD360, mesmo
 // Firebase omnichannel-b4696): nenhuma das duas aplicações usa Firebase
-// Auth — o hcCore faz login próprio (coleção `login`, sem
+// Auth — o DD360 faz login próprio (coleção `login`, sem
 // `request.auth`) e agora o Portal181 também é 100% client-side (export
 // estático, ver next.config.js). Isso significa que uma regra do
-// Firestore NÃO TEM COMO diferenciar "o painel do hcCore gravando" de
+// Firestore NÃO TEM COMO diferenciar "o painel do DD360 gravando" de
 // "qualquer visitante anônimo" — os dois chegam ao Firestore exatamente
 // do mesmo jeito, sem token nenhum. Por isso `dados/{tenant}/**` precisa
 // ficar aberto pra leitura/escrita sem autenticação: é o preço de não ter

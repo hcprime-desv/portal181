@@ -1,209 +1,140 @@
 "use client";
 
+// Cabeçalho no layout do site padrão (p2pcorp/ViaMob360 — mesmas classes:
+// topbar/nav/brand/links/nav-actions): logo, menu com o item da página
+// atual em azul e sublinhado, busca, tema e o botão "Denunciar"
+// ("Acompanhar" fica no banner, nos cartões e no rodapé; no celular, no
+// menu). O que aparece no menu vem do /admin: Configuração do site
+// (ligar/desligar cada item), Baralhos ativos (submenu "Baralhos") e
+// Páginas com "Exibir em: Menu" (mesmo "submenu" = um grupo).
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X, Search } from "lucide-react";
-import type { Baralho } from "@/types/baralho";
-import type { Pagina, Configuracao } from "@/types/conteudo";
+import { ChevronDown, Menu, Search, Send, X } from "lucide-react";
 import { subscribeBaralhosAtivos, subscribePaginasPublicadas } from "@/lib/data";
+import { nomeDoSite, useConfiguracao } from "./AoVivo";
+import { BotaoTema } from "./Tema";
+import type { Baralho } from "@/types/baralho";
+import type { Configuracao, Pagina } from "@/types/conteudo";
 
-// `key` aponta pro campo de visibilidade correspondente em Configuracao
-// (Configurações do Portal181, no hcCore) — undefined é tratado como
-// "mostrar" (ver `mostrarNoMenu` abaixo). Tipado só com as chaves
-// booleanas de menu (não `keyof Configuracao` genérico) pra
-// `configuracao?.[l.key]` sair `boolean | undefined`, não `string |
-// boolean | undefined`.
-type ChaveMenu = "menuInicio" | "menuDenuncie" | "menuProcurados" | "menuDesaparecidos" | "menuRecompensas" | "menuNoticias" | "menuSobre";
+// Logo do Portal 181 (scripts/gerar-marca.py portal181), usado enquanto a
+// Configuração do site não tiver logo cadastrado.
+const LOGO_PADRAO = "/images/logo-portal181.png";
+const LOGO_PADRAO_BRANCO = "/images/logo-portal181-branco.png";
 
-const LINKS_BASE: { href: string; label: string; key: ChaveMenu }[] = [
-  { href: "/", label: "Início", key: "menuInicio" },
-  { href: "/denuncie", label: "Denuncie", key: "menuDenuncie" },
-  { href: "/procurados", label: "Procurados", key: "menuProcurados" },
-  { href: "/desaparecidos", label: "Desaparecidos", key: "menuDesaparecidos" },
-];
+export function LogoMarca({ branco = false }: { branco?: boolean }) {
+  const c = useConfiguracao();
+  const src = branco ? (c.logoUrl ? c.logoUrl : LOGO_PADRAO_BRANCO) : c.logoUrl || LOGO_PADRAO;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={src} alt={nomeDoSite(c)} className={branco && c.logoUrl ? "logo-clara" : undefined} />;
+}
 
-const LINKS_FINAL: { href: string; label: string; key: ChaveMenu }[] = [
-  { href: "/recompensas", label: "Recompensas", key: "menuRecompensas" },
-  { href: "/noticias", label: "Notícias", key: "menuNoticias" },
-  { href: "/sobre", label: "Sobre", key: "menuSobre" },
-];
-
-const mostrarNoMenu = (v?: boolean) => v !== false;
-
-// Item do menu principal: link direto, ou um grupo (dropdown) quando
-// várias Páginas compartilham o mesmo `submenu` no hcCore (ex: "Material
-// Divulgação" agrupando Cartaz 2024, Meio Ambiente...).
-type ItemMenu =
-  | { tipo: "link"; href: string; label: string }
-  | { tipo: "grupo"; label: string; itens: { href: string; label: string }[] };
-
-// baralhosIniciais/paginasIniciais vêm do layout (Server Component, SSR
-// real) — ver ProcuradosLista para a mesma ideia aplicada às páginas de
-// conteúdo.
-export default function Header({
-  baralhosIniciais,
-  paginasIniciais,
-  configuracao,
-}: {
-  baralhosIniciais: Baralho[];
-  paginasIniciais: Pagina[];
-  configuracao?: Configuracao;
-}) {
-  const [open, setOpen] = useState(false);
-  const [baralhos, setBaralhos] = useState<Baralho[]>(baralhosIniciais);
-  const [todasPaginas, setTodasPaginas] = useState<Pagina[]>(paginasIniciais);
-
-  useEffect(() => {
-    const unsub = subscribeBaralhosAtivos(setBaralhos);
-    return () => unsub();
-  }, []);
-
-  useEffect(() => {
-    const unsub = subscribePaginasPublicadas(setTodasPaginas);
-    return () => unsub();
-  }, []);
-
-  // Baralho do Crime / Baralho Lilás / qualquer outro que o tenant tenha
-  // configurado entram no menu dinamicamente — não são fixos no código
-  // (ver documentacao/conceito.txt e a inspiração em disquedenuncia.ssp.ba.gov.br).
-  // Páginas com `local` "Menu" (cadastradas no hcCore) entram do mesmo
-  // jeito — as com "Rodapé" (ou sem `local`) ficam só no Footer. Dentro
-  // dessas, quem tem `submenu` preenchido vira um dropdown (agrupado por
-  // esse texto); quem não tem continua como link direto, igual sempre.
-  const paginasMenu = todasPaginas.filter((p) => p.local === "Menu");
-  const paginasMenuDiretas = paginasMenu.filter((p) => !p.submenu);
-  const gruposSubmenu = new Map<string, { href: string; label: string }[]>();
-  for (const p of paginasMenu) {
-    if (!p.submenu) continue;
-    const itens = gruposSubmenu.get(p.submenu) ?? [];
-    itens.push({ href: `/paginas/${p.slug}`, label: p.titulo });
-    gruposSubmenu.set(p.submenu, itens);
-  }
-
-  const itensMenu: ItemMenu[] = [
-    ...LINKS_BASE.filter((l) => mostrarNoMenu(configuracao?.[l.key])).map(
-      ({ href, label }): ItemMenu => ({ tipo: "link", href, label }),
-    ),
-    ...(mostrarNoMenu(configuracao?.menuBaralhos)
-      ? baralhos.map((b): ItemMenu => ({ tipo: "link", href: `/baralho/${b.slug}`, label: b.nome }))
-      : []),
-    ...(mostrarNoMenu(configuracao?.menuPaginas)
-      ? [
-          ...paginasMenuDiretas.map((p): ItemMenu => ({ tipo: "link", href: `/paginas/${p.slug}`, label: p.titulo })),
-          ...Array.from(gruposSubmenu.entries()).map(
-            ([label, itens]): ItemMenu => ({ tipo: "grupo", label, itens }),
-          ),
-        ]
-      : []),
-    ...LINKS_FINAL.filter((l) => mostrarNoMenu(configuracao?.[l.key])).map(
-      ({ href, label }): ItemMenu => ({ tipo: "link", href, label }),
-    ),
-  ];
-
+// Logo do topo: a versão normal no tema claro e a de fundo escuro no escuro.
+function LogoTopo() {
   return (
     <>
-      <div className="topbar">
-        <div className="wrap">
-          <span>{configuracao?.nomeOrgao ? `Portal Oficial — ${configuracao.nomeOrgao}` : "Portal Oficial do Disque Denúncia"}</span>
-          <div className="topbar-right">
-            {/* GET puro pra /busca — funciona sem JS, resultado é
-                Server Component (ver app/(public)/busca/page.tsx). */}
-            <form action="/busca" method="get" role="search" className="topbar-busca">
-              <input type="search" name="q" placeholder="Buscar no site..." aria-label="Buscar no site" />
-              <button type="submit" aria-label="Buscar">
-                <Search size={14} />
-              </button>
-            </form>
-            <Link href="/acompanhar">Acompanhar denúncia</Link>
-          </div>
-        </div>
-      </div>
-
-      <header className="site-header">
-        <div className="wrap nav">
-          <Link className="brand" href="/">
-            {configuracao?.logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={configuracao.logoUrl} alt={configuracao.nomeOrgao || "Logo"} style={{ height: 48, width: "auto" }} />
-            ) : (
-              <>
-                <span className="num">181</span>
-                <span className="txt">
-                  DISQUE
-                  <br />
-                  DENÚNCIA
-                </span>
-              </>
-            )}
-          </Link>
-
-          <nav className="menu">
-            {itensMenu.map((item) =>
-              item.tipo === "grupo" ? (
-                // <details> nativo — abre/fecha sem precisar de estado
-                // React nem listener de "clique fora" (mesma ideia da
-                // busca no topbar: menos JS, funciona de qualquer jeito).
-                <details key={item.label} className="nav-dropdown">
-                  <summary>{item.label}</summary>
-                  <div className="nav-dropdown-menu">
-                    {item.itens.map((sub) => (
-                      <Link key={sub.href} href={sub.href}>
-                        {sub.label}
-                      </Link>
-                    ))}
-                  </div>
-                </details>
-              ) : (
-                <Link key={item.href} href={item.href}>
-                  {item.label}
-                </Link>
-              ),
-            )}
-          </nav>
-
-          <button
-            type="button"
-            className="hidden max-[900px]:block"
-            aria-label="Abrir menu"
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? <X size={26} /> : <Menu size={26} />}
-          </button>
-        </div>
-
-        {open && (
-          <div className="wrap pb-4 hidden max-[900px]:block">
-            <div className="flex flex-col gap-1">
-              {itensMenu.map((item) =>
-                item.tipo === "grupo" ? (
-                  <div key={item.label} className="mobile-nav-grupo">
-                    <span className="mobile-nav-grupo-titulo">{item.label}</span>
-                    {item.itens.map((sub) => (
-                      <Link
-                        key={sub.href}
-                        href={sub.href}
-                        onClick={() => setOpen(false)}
-                        className="py-2 pl-4 font-semibold block"
-                      >
-                        {sub.label}
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className="py-2 font-semibold"
-                  >
-                    {item.label}
-                  </Link>
-                ),
-              )}
-            </div>
-          </div>
-        )}
-      </header>
+      <span className="logo-tema-claro"><LogoMarca /></span>
+      <span className="logo-tema-escuro"><LogoMarca branco /></span>
     </>
+  );
+}
+
+type Link_ = { href: string; rotulo: string; secao?: string };
+export type ItemMenu = { tipo: "link"; link: Link_ } | { tipo: "grupo"; nome: string; itens: Link_[] };
+
+type ChaveMenu = "menuInicio" | "menuProcurados" | "menuDesaparecidos" | "menuRecompensas" | "menuNoticias";
+const mostra = (c: Configuracao, k: keyof Configuracao) => c[k] !== false; // nunca configurado = mostrar
+
+const link = (href: string, rotulo: string): ItemMenu => ({ tipo: "link", link: { href, rotulo } });
+const fixo = (c: Configuracao, k: ChaveMenu, href: string, rotulo: string): ItemMenu[] => (mostra(c, k) ? [link(href, rotulo)] : []);
+
+// Monta o menu na ordem do Portal 181. Para caber numa linha (como no site
+// padrão), o que pode crescer vira submenu: "Baralhos" e "Institucional"
+// (Sobre + páginas do Menu; páginas com o mesmo "submenu" ficam juntas,
+// sob o nome dele como subtítulo).
+export function montarMenu(c: Configuracao, baralhos: Baralho[], paginas: Pagina[]): ItemMenu[] {
+  const doMenu = mostra(c, "menuPaginas") ? paginas.filter((p) => p.local === "Menu") : [];
+  const vistos = new Set<string>();
+  const unico = (l: Link_) => (vistos.has(l.href) ? false : (vistos.add(l.href), true));
+  const agrupadas = doMenu.filter((p) => p.submenu).sort((a, b) => a.submenu!.localeCompare(b.submenu!))
+    .map((p) => ({ href: `/paginas/${p.slug}`, rotulo: p.titulo, secao: p.submenu }));
+  const grupo = (nome: string, itens: Link_[]): ItemMenu[] => {
+    const lista = itens.filter(unico);
+    if (!lista.length) return [];
+    return [lista.length === 1 ? link(lista[0].href, lista[0].rotulo) : { tipo: "grupo", nome, itens: lista }];
+  };
+  const institucional = [
+    ...(mostra(c, "menuSobre") ? [{ href: "/sobre", rotulo: "Como funciona o 181" }] : []),
+    ...doMenu.filter((p) => !p.submenu).map((p) => ({ href: `/paginas/${p.slug}`, rotulo: p.titulo })),
+    ...agrupadas,
+  ];
+  return [
+    ...fixo(c, "menuInicio", "/", "Início"),
+    ...fixo(c, "menuProcurados", "/procurados", "Procurados"),
+    ...fixo(c, "menuDesaparecidos", "/desaparecidos", "Desaparecidos"),
+    ...(mostra(c, "menuBaralhos") ? grupo("Baralhos", baralhos.map((b) => ({ href: `/baralho/${b.slug}`, rotulo: b.nome }))) : []),
+    ...fixo(c, "menuRecompensas", "/recompensas", "Recompensas"),
+    ...fixo(c, "menuNoticias", "/noticias", "Notícias"),
+    ...grupo("Institucional", institucional),
+  ];
+}
+
+// Baralhos e páginas: SSR (vêm do layout) e depois ao vivo.
+export function useMenu(baralhosIniciais: Baralho[], paginasIniciais: Pagina[]) {
+  const c = useConfiguracao();
+  const [baralhos, setBaralhos] = useState(baralhosIniciais);
+  const [paginas, setPaginas] = useState(paginasIniciais);
+  useEffect(() => subscribeBaralhosAtivos(setBaralhos), []);
+  useEffect(() => subscribePaginasPublicadas(setPaginas), []);
+  return { itens: montarMenu(c, baralhos, paginas), paginas };
+}
+
+// Item da página atual: "/" só na Home; os demais também nas rotas filhas.
+const ehAtual = (href: string, rota: string) => (href === "/" ? rota === "/" : rota === href || rota.startsWith(href + "/"));
+
+export default function Header({ baralhosIniciais, paginasIniciais }: { baralhosIniciais: Baralho[]; paginasIniciais: Pagina[] }) {
+  const c = useConfiguracao();
+  const { itens } = useMenu(baralhosIniciais, paginasIniciais);
+  const rota = usePathname() || "/";
+  const [aberto, setAberto] = useState(false);
+  const [sub, setSub] = useState<string | null>(null);
+  const fechar = () => { setAberto(false); setSub(null); };
+  const classe = (href: string) => (ehAtual(href, rota) ? "ativo" : undefined);
+  const denunciar = mostra(c, "menuDenuncie");
+  return (
+    <header className="topbar">
+      <div className="container nav">
+        <Link className="brand" href="/" aria-label={`${nomeDoSite(c)} — início`} onClick={fechar}><LogoTopo /></Link>
+        <nav className={`links${aberto ? " aberto" : ""}`} aria-label="Menu principal">
+          {itens.map((g) => g.tipo === "link" ? (
+            <Link key={g.link.href} href={g.link.href} className={classe(g.link.href)} onClick={fechar}>{g.link.rotulo}</Link>
+          ) : (
+            <div key={g.nome} className={`menu-grupo${sub === g.nome ? " aberto" : ""}`} onMouseLeave={() => setSub(null)}>
+              <button type="button" aria-expanded={sub === g.nome} onClick={() => setSub(sub === g.nome ? null : g.nome)} onMouseEnter={() => setSub(g.nome)}>
+                {g.nome} <ChevronDown size={16} aria-hidden />
+              </button>
+              <div className="submenu">
+                {g.itens.map((i, k) => (
+                  <span key={i.href} style={{ display: "contents" }}>
+                    {i.secao && i.secao !== g.itens[k - 1]?.secao && <span className="submenu-titulo">{i.secao}</span>}
+                    <Link href={i.href} className={classe(i.href)} onClick={fechar}>{i.rotulo}</Link>
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+          <Link href="/acompanhar" className="btn btn-outline so-mobile" onClick={fechar}>Acompanhar denúncia</Link>
+          {denunciar && <Link href="/denuncie" className="btn btn-red so-mobile" onClick={fechar}><Send size={18} /> Fazer denúncia</Link>}
+        </nav>
+        <BotaoTema />
+        <div className="nav-actions">
+          <Link className="busca" href="/busca" aria-label="Buscar no site"><Search size={19} /></Link>
+          {denunciar && <Link href="/denuncie" className="btn btn-red"><Send size={17} /> Denunciar</Link>}
+        </div>
+        <button className="menu-btn" type="button" onClick={() => setAberto((v) => !v)} aria-label={aberto ? "Fechar menu" : "Abrir menu"} aria-expanded={aberto}>
+          {aberto ? <X size={26} /> : <Menu size={26} />}
+        </button>
+      </div>
+    </header>
   );
 }

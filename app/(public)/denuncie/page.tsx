@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 import DenunciaWizard from "@/components/denuncia/DenunciaWizard";
+import Pagina from "@/components/public/CabecalhoPagina";
 
 export const metadata: Metadata = { title: "Fazer uma Denúncia" };
 
 export default function DenunciePage() {
   return (
-    <div className="wrap">
-      <div className="pagehead">
-        <h1>Fazer uma Denúncia</h1>
-        <p>Você não precisa se identificar. Sua informação é muito importante.</p>
-      </div>
+    <Pagina chamada="Denúncia anônima" titulo="Fazer uma Denúncia" resumo="Você não precisa se identificar. Sua informação é muito importante." estreito>
       <DenunciaWizard />
-    </div>
+    </Pagina>
   );
 }

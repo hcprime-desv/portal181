@@ -9,7 +9,7 @@ import { markdownSanitizeSchema } from "@/lib/markdownSanitize";
 import type { Aviso } from "@/types/conteudo";
 
 // Banner flutuante — formato padrão pra avisos SEM "Urgente" marcado no
-// hcCore (notícia, campanha, recompensa em destaque etc.). Fica num canto
+// /admin (notícia, campanha, recompensa em destaque etc.). Fica num canto
 // da tela, não bloqueia a navegação nem o uso do site (ver AvisosClient.tsx).
 export default function AvisoBanner({ aviso, onClose }: { aviso: Aviso; onClose: () => void }) {
   return (

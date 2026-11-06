@@ -11,12 +11,12 @@
 // (procurados, desaparecidos, notícias etc.) continuam de leitura aberta,
 // não precisam de sessão nenhuma.
 //
-// Gap conhecido: o hcCore ainda não usa Firebase Auth (ver firestore.rules)
+// Gap conhecido: o DD360 ainda não usa Firebase Auth (ver firestore.rules)
 // — por isso as regras do Firestore ainda NÃO foram apertadas para exigir
 // `request.auth != null` em `denuncias`/`chats`/`messages`. Apertar agora
-// quebraria as telas de apuração do hcCore, que leem essas coleções sem
+// quebraria as telas de apuração do DD360, que leem essas coleções sem
 // nenhuma sessão do Firebase Auth. Este helper deixa o site pronto para
-// quando o hcCore também migrar.
+// quando o DD360 também migrar.
 //
 // IMPORTANTE: como as regras ainda não exigem `request.auth != null`,
 // essa sessão é "best effort" — nunca pode travar denúncia/chat.

@@ -8,7 +8,7 @@ import rehypeSanitize from "rehype-sanitize";
 import { markdownSanitizeSchema } from "@/lib/markdownSanitize";
 import type { Aviso } from "@/types/conteudo";
 
-// Modal de entrada — só pra avisos marcados "Urgente" no hcCore (ver
+// Modal de entrada — só pra avisos marcados "Urgente" no /admin (ver
 // AvisosClient.tsx). Bloqueia a tela até o usuário fechar de propósito:
 // é reservado pra alertas realmente críticos (ex: desaparecimento
 // recente), não pra promoção/notícia comum (isso é AvisoBanner.tsx).

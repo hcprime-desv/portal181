@@ -1,22 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 
-// Revalidação sob demanda — chamada pelo hcCore logo depois de
-// criar/editar/excluir um registro no painel (Notícias, Procurados,
-// Desaparecidos, Recompensas, Baralhos), pra não depender só do
-// `revalidate = 300` de cada página (até 5min de defasagem). Não é
-// leitura/escrita de dado nenhum — só invalida o cache de rota do Next.js,
-// por isso o "segredo" abaixo é uma proteção básica contra invalidação
-// abusiva vinda de fora, não um controle de acesso a dado sensível (o
-// hcCore é client-side/estático, então esse valor não pode ficar 100%
-// oculto de qualquer forma).
-//
-// hcCore chama isso via `fetch()` direto do navegador (é uma app
-// client-side/estática, `output: "export"`), de uma origem diferente
-// (porta diferente em dev, domínio diferente em produção) — por isso
-// precisa de CORS liberado aqui, senão o navegador bloqueia a requisição
-// antes de sair (aparece como "Failed to fetch", nem chega a virar um
-// 401/403 de verdade).
+// Revalidação sob demanda para quem está FORA deste site (ex.: um script ou
+// outro sistema que grave conteúdo direto no banco). O /admin do próprio
+// site não usa esta rota: renova o cache pela Server Action
+// app/admin/acoes.ts#renovarSite. Exige o cabeçalho x-revalidate-secret
+// igual a REVALIDATE_SECRET (.env); sem a variável, a rota recusa tudo.
+// Só invalida o cache de rota do Next — não lê nem grava dado.
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",

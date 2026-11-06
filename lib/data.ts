@@ -1,6 +1,6 @@
 // Leitura pública de conteúdo (Procurados/Desaparecidos/Recompensas/
-// Notícias/Baralhos/Páginas/Naturezas) — client-side, via
-// lib/firebase/gen.ts (export estático, sem servidor, ver next.config.js).
+// Notícias/Baralhos/Páginas/Naturezas/Configuração), via lib/firebase/gen.ts —
+// no servidor (SSR) e no navegador (tempo real).
 //
 // Duas famílias de função:
 // - `listarX`/`buscarXPorSlug` — leitura pontual (getDocs), usada só onde
@@ -8,21 +8,28 @@
 //   Node, no build, não dá pra "escutar" nada ali).
 // - `subscribeX` — listener de verdade (onSnapshot, mesmo `getAll` que o
 //   chat já usa) para os componentes "use client" das páginas públicas.
-//   Sem isso, uma edição feita no painel (hcCore) só aparecia numa aba já
+//   Sem isso, uma edição feita no /admin só aparecia numa aba já
 //   aberta depois de um F5 — o listener resolve isso.
 //
 // Tudo fica em dados/{tenant}/<colecao> (ver lib/firebase/gen.ts) — mesmo
-// banco e mesmo padrão multi-tenant do hcCore.
+// banco e mesmo padrão multi-tenant dos painéis do core360.
 //
 // Antes do Firebase estar configurado (sem .env.local ainda) ou se a
 // leitura falhar por qualquer motivo, cada função cai num fallback com
 // conteúdo ilustrativo, pra tela não ficar em branco durante o
 // desenvolvimento do esqueleto.
-import { getAllOnce, getAll, getDocOnce } from "@/lib/firebase/gen";
+import { getAllOnce, getAll, getDocOnce, getDocOn } from "@/lib/firebase/gen";
 import type { Unsubscribe } from "firebase/firestore";
 import type { Procurado, Desaparecido, Recompensa, Noticia, Pagina, Aviso, Configuracao } from "@/types/conteudo";
 import type { Baralho, CartaBaralho } from "@/types/baralho";
 import { NATUREZAS } from "@/types/wizard";
+
+// "Ativo (visível no site)" do /admin: sem o campo (cadastro antigo) = visível.
+const visiveis = <T extends { ativo?: boolean }>(docs: T[]) => docs.filter((d) => d.ativo !== false);
+const porNome = (docs: any[]) => visiveis([...docs].sort((a, b) => String(a.nome).localeCompare(String(b.nome))));
+// Notícias: data "dd/mm/aaaa" → mais nova primeiro.
+const chaveData = (d: string) => String(d || "").split("/").reverse().join("");
+const porData = (docs: any[]) => visiveis([...docs].sort((a, b) => chaveData(b.data).localeCompare(chaveData(a.data))));
 
 async function tentarFirestore<T>(fn: () => Promise<T[]>, fallback: T[]): Promise<T[]> {
   try {
@@ -84,59 +91,41 @@ const BARALHOS_MOCK: Baralho[] = [
 ];
 
 export async function listarProcurados(): Promise<Procurado[]> {
-  const docs = await tentarFirestore(() => getAllOnce("procurados"), PROCURADOS_MOCK as any[]);
-  return [...docs].sort((a, b) => String(a.nome).localeCompare(String(b.nome)));
+  return porNome(await tentarFirestore(() => getAllOnce("procurados"), PROCURADOS_MOCK as any[]));
 }
 
 export function subscribeProcurados(callback: (dados: Procurado[]) => void): Unsubscribe {
-  return subscrever(
-    "procurados",
-    (docs) => [...docs].sort((a, b) => String(a.nome).localeCompare(String(b.nome))),
-    PROCURADOS_MOCK,
-    callback,
-  );
+  return subscrever("procurados", porNome, PROCURADOS_MOCK, callback);
 }
 
 export async function listarDesaparecidos(): Promise<Desaparecido[]> {
-  const docs = await tentarFirestore(() => getAllOnce("desaparecidos"), DESAPARECIDOS_MOCK as any[]);
-  return [...docs].sort((a, b) => String(a.nome).localeCompare(String(b.nome)));
+  return porNome(await tentarFirestore(() => getAllOnce("desaparecidos"), DESAPARECIDOS_MOCK as any[]));
 }
 
 export function subscribeDesaparecidos(callback: (dados: Desaparecido[]) => void): Unsubscribe {
-  return subscrever(
-    "desaparecidos",
-    (docs) => [...docs].sort((a, b) => String(a.nome).localeCompare(String(b.nome))),
-    DESAPARECIDOS_MOCK,
-    callback,
-  );
+  return subscrever("desaparecidos", porNome, DESAPARECIDOS_MOCK, callback);
 }
 
 export async function listarRecompensas(): Promise<Recompensa[]> {
-  return tentarFirestore(() => getAllOnce("recompensas"), RECOMPENSAS_MOCK as any[]);
+  return visiveis(await tentarFirestore(() => getAllOnce("recompensas"), RECOMPENSAS_MOCK as any[]));
 }
 
 export function subscribeRecompensas(callback: (dados: Recompensa[]) => void): Unsubscribe {
-  return subscrever("recompensas", (docs) => docs, RECOMPENSAS_MOCK, callback);
+  return subscrever("recompensas", visiveis, RECOMPENSAS_MOCK, callback);
 }
 
+// A data é texto "dd/mm/aaaa" (o /admin grava assim); ordena pela data de verdade.
 export async function listarNoticias(): Promise<Noticia[]> {
-  const docs = await tentarFirestore(() => getAllOnce("noticias"), NOTICIAS_MOCK as any[]);
-  return [...docs].sort((a, b) => String(b.data).localeCompare(String(a.data)));
+  return porData(await tentarFirestore(() => getAllOnce("noticias"), NOTICIAS_MOCK as any[]));
 }
 
 export function subscribeNoticias(callback: (dados: Noticia[]) => void): Unsubscribe {
-  return subscrever(
-    "noticias",
-    (docs) => [...docs].sort((a, b) => String(b.data).localeCompare(String(a.data))),
-    NOTICIAS_MOCK,
-    callback,
-  );
+  return subscrever("noticias", porData, NOTICIAS_MOCK, callback);
 }
 
 // Natureza da denúncia usada no wizard (passo "O que você quer
 // denunciar?") — lê a MESMA tabela usada pela apuração operacional no
-// hcCore (dados/{tenant}/natureza, gerida em
-// disquedenuncia/tabelas/Denuncia/Natureza), não uma lista própria do
+// DD360 (dados/{tenant}/natureza, gerida no painel do Disque Denúncia), não uma lista própria do
 // site. Cai no array fixo de types/wizard.ts se a coleção ainda não tiver
 // sido populada ou a leitura falhar.
 export async function listarNaturezas(): Promise<string[]> {
@@ -244,8 +233,8 @@ export function subscribeAvisosAtivos(callback: (dados: Aviso[]) => void): Unsub
   return subscrever("avisos", ordenarAvisosAtivos, [], callback);
 }
 
-// Doc único (não é lista) — nome do órgão, cores, contato e imagem de
-// fundo da home, configurados no hcCore. Sem mock: se o tenant não
+// Doc único (não é lista) — nome do órgão, cores, tema, contato e imagem
+// de fundo da home, configurados em /admin → Configuração do site. Sem mock: se o tenant não
 // configurou nada ainda, volta `{}` e cada consumidor usa seu próprio
 // padrão (cores/imagem fixas já definidas em globals.css, textos fixos
 // em Header/Footer) — igual ao comportamento de antes desta config existir.
@@ -255,5 +244,14 @@ export async function listarConfiguracao(): Promise<Configuracao> {
     return (doc as Configuracao) ?? {};
   } catch {
     return {};
+  }
+}
+
+// A configuração ao vivo (o /admin salva e o site muda sem recarregar).
+export function subscribeConfiguracao(callback: (c: Configuracao) => void): Unsubscribe {
+  try {
+    return getDocOn("configuracoes", "geral", (doc) => callback((doc as Configuracao) ?? {}));
+  } catch {
+    return () => {};
   }
 }

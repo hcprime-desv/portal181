@@ -13,7 +13,7 @@ import { uploadFile, formatBytes } from "@/lib/firebase/gen";
 
 export default function DenunciaWizard() {
   // Listener em tempo real (dados/{tenant}/natureza, mesma tabela da
-  // apuração operacional do hcCore) — cai no fallback fixo de
+  // apuração operacional do DD360) — cai no fallback fixo de
   // types/wizard.ts enquanto carrega ou se a coleção ainda não tiver sido
   // populada.
   const [opcoesNatureza, setOpcoesNatureza] = useState<readonly string[]>(NATUREZAS);
@@ -61,7 +61,7 @@ export default function DenunciaWizard() {
     setPasso((p) => Math.max(p - 1, 1));
   }
 
-  // Sobe pro Storage no momento da seleção (mesmo padrão do hcCore —
+  // Sobe pro Storage no momento da seleção (mesmo padrão do DD360 —
   // uploadFile de lib/firebase/gen.ts), não só na hora de enviar a
   // denúncia inteira — assim o usuário já vê o anexo confirmado antes de
   // revisar e enviar.
@@ -324,7 +324,7 @@ export default function DenunciaWizard() {
               <ul style={{ color: "var(--muted)", fontSize: 14 }}>
                 {dados.anexos.map((a, i) => (
                   <li key={a.url}>
-                    <Paperclip size={14} className="inline mr-1" /> {a.nome} ({a.tamanho})
+                    <Paperclip size={14} style={{ display: "inline", marginRight: 4, verticalAlign: "-2px" }} /> {a.nome} ({a.tamanho})
                     <button
                       type="button"
                       onClick={() => removerAnexo(i)}

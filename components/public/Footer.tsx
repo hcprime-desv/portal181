@@ -1,61 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
+// Rodapé no layout do site padrão (footer-grid/footer-marca/footer-fim):
+// logo branco + texto, colunas "Denúncia", "Consultas", "Institucional"
+// (páginas com "Exibir em: Rodapé") e "Contato", e a linha final com a
+// assinatura da P2P Corp. Tudo da Configuração do site e das Páginas (/admin).
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { subscribePaginasPublicadas } from "@/lib/data";
-import type { Pagina, Configuracao } from "@/types/conteudo";
+import { nomeDoSite, useConfiguracao } from "./AoVivo";
+import { LogoMarca } from "./Header";
+import type { Pagina } from "@/types/conteudo";
 
-// paginasIniciais vem do layout (Server Component, SSR real) — mesma
-// ideia de ProcuradosLista/Header. Só as páginas com `local` "Rodapé" (ou
-// sem `local`, cadastradas antes desse campo existir) aparecem aqui — as
-// marcadas "Menu" vão pro cabeçalho (ver Header.tsx).
-export default function Footer({
-  paginasIniciais,
-  configuracao,
-}: {
-  paginasIniciais: Pagina[];
-  configuracao?: Configuracao;
-}) {
-  const [todasPaginas, setTodasPaginas] = useState<Pagina[]>(paginasIniciais);
+const soDigitos = (v?: string) => (v || "").replace(/\D/g, "");
 
-  useEffect(() => {
-    const unsub = subscribePaginasPublicadas(setTodasPaginas);
-    return () => unsub();
-  }, []);
-
-  const paginas = todasPaginas.filter((p) => (p.local ?? "Rodapé") === "Rodapé");
-
+export default function Footer({ paginasIniciais }: { paginasIniciais: Pagina[] }) {
+  const c = useConfiguracao();
+  const [paginas, setPaginas] = useState(paginasIniciais);
+  useEffect(() => subscribePaginasPublicadas(setPaginas), []);
+  const doRodape = paginas.filter((p) => (p.local ?? "Rodapé") === "Rodapé");
   return (
-    <footer className="site-footer">
-      <div className="wrap">
-        <div>
-          <strong>{configuracao?.nomeOrgao || "PORTAL 181 | Disque Denúncia"}</strong>
-          <br />
-          <small>{configuracao?.textoRodape || "Sua informação pode proteger uma vida."}</small>
-        </div>
-        <div>
-          {configuracao?.telefone || configuracao?.email ? (
-            <small>
-              {configuracao?.telefone && <>{configuracao.telefone}</>}
-              {configuracao?.telefone && configuracao?.email && <>&nbsp;•&nbsp;</>}
-              {configuracao?.email && <>{configuracao.email}</>}
-            </small>
-          ) : (
-            <small>Anonimato &nbsp;•&nbsp; Segurança &nbsp;•&nbsp; Cidadania &nbsp;•&nbsp; Resultados</small>
-          )}
-        </div>
-        {paginas.length > 0 && (
-          <div>
-            <small>
-              {paginas.map((p, i) => (
-                <span key={p.id}>
-                  {i > 0 && <>&nbsp;•&nbsp;</>}
-                  <Link href={`/paginas/${p.slug}`}>{p.titulo}</Link>
-                </span>
-              ))}
-            </small>
+    <footer>
+      <div className="container">
+        <div className="footer-grid">
+          <div className="footer-marca">
+            <LogoMarca branco />
+            <p>{c.textoRodape || "Sua informação pode proteger uma vida. Denuncie de forma anônima, segura e protegida."}</p>
           </div>
-        )}
+          <div>
+            <h4>Denúncia</h4>
+            {c.menuDenuncie !== false && <Link href="/denuncie">Fazer denúncia</Link>}
+            <Link href="/acompanhar">Acompanhar protocolo</Link>
+            <a href="tel:181">Ligar 181</a>
+          </div>
+          <div>
+            <h4>Consultas</h4>
+            {c.menuProcurados !== false && <Link href="/procurados">Procurados</Link>}
+            {c.menuDesaparecidos !== false && <Link href="/desaparecidos">Desaparecidos</Link>}
+            {c.menuRecompensas !== false && <Link href="/recompensas">Recompensas</Link>}
+            {c.menuNoticias !== false && <Link href="/noticias">Notícias</Link>}
+            <Link href="/busca">Buscar no site</Link>
+          </div>
+          <div>
+            <h4>Institucional</h4>
+            {c.menuSobre !== false && <Link href="/sobre">Como funciona o 181</Link>}
+            {doRodape.map((p) => <Link key={p.id} href={`/paginas/${p.slug}`}>{p.titulo}</Link>)}
+          </div>
+          <div>
+            <h4>Contato</h4>
+            <a href="tel:181">Disque 181</a>
+            {c.telefone && <a href={`tel:+55${soDigitos(c.telefone)}`}>{c.telefone}</a>}
+            {c.email && <a href={`mailto:${c.email}`}>{c.email}</a>}
+            {c.endereco && <p>{c.endereco}</p>}
+          </div>
+        </div>
+        <div className="footer-fim">
+          <div className="copy">
+            <span>© {new Date().getFullYear()} {nomeDoSite(c)}. Todos os direitos reservados.</span>
+            <span>Anonimato • Segurança • Cidadania • Resultados</span>
+          </div>
+          <div className="copy">
+            <span>Tecnologia P2P Corp</span>
+            <Link href="/admin">Área restrita</Link>
+          </div>
+        </div>
       </div>
     </footer>
   );

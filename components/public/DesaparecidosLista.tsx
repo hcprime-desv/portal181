@@ -20,7 +20,7 @@ export default function DesaparecidosLista({ dadosIniciais }: { dadosIniciais: D
   return (
     <>
       {desaparecidos.length === 0 && (
-        <p style={{ color: "var(--muted)" }}>Nenhum registro no momento.</p>
+        <div className="notice">Nenhum registro no momento.</div>
       )}
       <div className="people-grid">
         {desaparecidos.map((p) => (
@@ -32,8 +32,7 @@ export default function DesaparecidosLista({ dadosIniciais }: { dadosIniciais: D
                   src={p.fotoUrl}
                   alt={p.nome}
                   className="photo-clicavel"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onClick={() => setFotoAmpliada({ src: p.fotoUrl!, alt: p.nome })}
+                                    onClick={() => setFotoAmpliada({ src: p.fotoUrl!, alt: p.nome })}
                 />
               ) : (
                 <User size={48} color="#7688a0" />
@@ -41,11 +40,11 @@ export default function DesaparecidosLista({ dadosIniciais }: { dadosIniciais: D
             </div>
             <div className="person-info">
               <strong>{p.nome}</strong>
-              <p style={{ margin: "3px 0 8px", color: "rgba(255,255,255,0.85)" }}>
+              <p>
                 {p.idade ? `${p.idade} anos · ` : ""}
                 Desaparecido(a) em {p.dataDesaparecimento ?? "data não informada"}
               </p>
-              <Link href={`/denuncie?desaparecidoId=${p.id}`} className="btn btn-outline">
+              <Link href={`/denuncie?desaparecidoId=${p.id}`} className="btn btn-white">
                 Tenho uma informação
               </Link>
             </div>

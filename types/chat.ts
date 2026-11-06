@@ -1,4 +1,4 @@
-// Tipos alinhados ao schema REAL de Atendimento usado pelo hcCore/hcpesquisa
+// Tipos alinhados ao schema REAL de Atendimento usado pelo apps/dd360/hcpesquisa
 // (coleção `chats` + `messages` plana filtrada por `idChat` — sem
 // fila/SLA/base de conhecimento, é uma plataforma de chat genérica). Ver
 // hcpesquisa/src/features/atendimento/types.ts (referência completa) —

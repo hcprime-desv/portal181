@@ -273,7 +273,7 @@ export default function ChatConversa({
           return (
             <div key={m.id} className={`${styles.bolhaWrap} ${minha ? styles.bolhaWrapDireita : ""}`}>
               {/* Ícone por tipo de remetente — mesmo padrão do chat de
-                  Atendimento no hcCore (MessageItem.tsx): fone de ouvido
+                  Atendimento no DD360 (MessageItem.tsx): fone de ouvido
                   pra quem atende, pessoa pra quem é atendido. Aqui o
                   visitante do site é sempre quem é "atendido". */}
               {!minha && (

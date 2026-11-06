@@ -3,7 +3,7 @@ import type { EnvolvidoDenuncia, VeiculoDenuncia, AnexoDenuncia } from "./denunc
 // Fallback/seed — usado só se dados/{tenant}/natureza ainda não tiver sido
 // populada (ver lib/data.ts#listarNaturezas), ou se o Firestore falhar. A
 // fonte de verdade em produção é a tabela de natureza da denúncia, a MESMA
-// usada pela apuração operacional no hcCore, não uma lista própria do site.
+// usada pela apuração operacional no DD360, não uma lista própria do site.
 export const NATUREZAS = [
   "Tráfico de drogas",
   "Homicídio",

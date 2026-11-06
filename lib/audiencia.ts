@@ -3,7 +3,7 @@
 // denunciante ou o conteúdo de uma denúncia: aqui só existem CONTAGENS
 // agregadas (quantos, não quem), sem nenhum vínculo com `lib/denunciaClient.ts`
 // além de "uma denúncia foi concluída" (sem protocolo, sem relato, sem
-// nada). Ver hcCore: pages/components/portal181/dashboard/Dashboard.tsx
+// nada). Quem lê: components/admin/Painel.tsx (/admin → Painel).
 // (lê essas coleções pra montar o "Dashboard de Audiência e Denúncias").
 //
 // Duas coleções:
@@ -11,7 +11,7 @@
 //   lib/visitante.ts), sobrescrito a cada heartbeat com `ultimoPing`. Não
 //   cresce sem limite (mesmo visitante = mesmo doc) e não guarda histórico,
 //   só o último sinal de vida — é a base do "visitantes ativos agora"
-//   (filtrado por quem deu ping nos últimos ~60s, calculado no hcCore).
+//   (filtrado por quem deu ping nos últimos ~60s, calculado no /admin).
 // - `audienciaContadores/{AAAA-MM-DD_HH}` — 1 doc por hora do dia, com
 //   contadores incrementados atomicamente (nunca 1 doc por evento, senão a
 //   coleção cresceria sem parar em pouco tempo de uso real).
@@ -23,7 +23,7 @@ export { JANELA_ATIVO_MS };
 
 function chaveHoraAtual(): { chave: string; data: string; hora: number } {
   const agora = new Date();
-  const data = agora.toISOString().slice(0, 10); // AAAA-MM-DD (UTC — combinar com o hcCore ao ler)
+  const data = agora.toISOString().slice(0, 10); // AAAA-MM-DD (UTC — combinar com o /admin ao ler)
   const hora = agora.getUTCHours();
   return { chave: `${data}_${String(hora).padStart(2, "0")}`, data, hora };
 }
