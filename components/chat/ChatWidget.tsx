@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { MessageCircle, X } from "lucide-react";
-import { obterVisitanteId } from "@/lib/visitante";
-import { buscarAtendimentoAtivo } from "@/lib/chatClient";
-import type { Atendimento } from "@/types/chat";
-import ChatConversa from "./ChatConversa";
+import ChatMotor from "./ChatMotor";
+import { motorChat } from "@/lib/chatMotor";
 import styles from "./ChatWidget.module.css";
 
 export interface ChatWidgetProps {
@@ -21,11 +19,9 @@ export interface ChatWidgetProps {
   mensagemBoasVindas?: string;
 }
 
-// Botão flutuante (canto inferior direito) que abre um chat com a Central
-// de Atendimento — mesmo modelo de dados do Atendimento real do DD360
-// (coleção `chats`/`messages`, ver lib/chatClient.ts), então uma conversa
-// aberta aqui cai na fila de um agente humano de verdade, exatamente como
-// o app mobile hcpesquisa (fonte da lógica portada aqui).
+// Botão flutuante (canto inferior direito) que abre o chat com a Central de Atendimento. A conversa usa o MESMO MOTOR do
+// WhatsApp (10/11/2026 — components/chat/ChatMotor.tsx + lib/chatMotor.ts): o chatbot do DD360 conduz (menu, formulários
+// do roteiro, localização) e, no bloco Atendente, a conversa cai na mesma fila do Atendimento, com o mesmo atendente.
 //
 // Reutilizável em qualquer app Next.js que já siga o mesmo padrão deste
 // projeto: precisa existir `@/lib/firebase/client` (db/storage do
@@ -41,68 +37,19 @@ export default function ChatWidget({
   mensagemBoasVindas,
 }: ChatWidgetProps) {
   const [aberto, setAberto] = useState(false);
-  const [visitante, setVisitante] = useState<{ id: string; nome: string } | null>(null);
-  const [atendimento, setAtendimento] = useState<Atendimento | null>(null);
-  const [carregando, setCarregando] = useState(false);
-  // Controla se a busca já rodou — não dá pra usar `!atendimento` pra isso
-  // (o resultado normal, sem atendimento aberto pra retomar, também é
-  // `null`, o que reexecutava o efeito pra sempre e piscava o painel).
-  const [buscou, setBuscou] = useState(false);
+  const [pronto, setPronto] = useState(false);
+  useEffect(() => setPronto(true), []);
+  void assuntoPadrao;
 
-  useEffect(() => {
-    setVisitante({ id: obterVisitanteId(), nome: "Visitante" });
-  }, []);
-
-  // Só busca um atendimento em aberto pra retomar quando o painel abre de
-  // verdade pela 1ª vez — não precisa consultar o Firestore enquanto o
-  // botão flutuante está só fechado na tela.
-  useEffect(() => {
-    if (!aberto || !visitante || buscou) return;
-    setCarregando(true);
-    buscarAtendimentoAtivo(visitante.id)
-      .then((existente) => setAtendimento(existente))
-      .catch((err) => console.warn("Não foi possível buscar atendimento em aberto:", err))
-      .finally(() => {
-        setCarregando(false);
-        setBuscou(true);
-      });
-  }, [aberto, visitante, buscou]);
-
-  if (!visitante) return null;
+  if (!pronto) return null;
 
   return (
     <div className={styles.wrapper}>
       {aberto && (
-        <div className={styles.painel}>
-          <div className={styles.cabecalho}>
-            <div className={styles.cabecalhoAvatar}>
-              {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarUrl} alt={nomeAtendente} />
-              ) : (
-                <MessageCircle size={20} />
-              )}
-            </div>
-            <div className={styles.cabecalhoTexto}>
-              <strong>{nomeAtendente}</strong>
-              <span>online</span>
-            </div>
-            <button type="button" className={styles.fecharBtn} onClick={() => setAberto(false)} aria-label="Fechar chat">
-              <X size={18} />
-            </button>
-          </div>
-
-          {carregando ? (
-            <div className={styles.carregando}>Carregando...</div>
-          ) : (
-            <ChatConversa
-              atendimento={atendimento}
-              visitante={visitante}
-              assuntoPadrao={assuntoPadrao}
-              onAtendimentoCriado={setAtendimento}
-              mensagemBoasVindas={mensagemBoasVindas}
-            />
-          )}
+        <div className={styles.celular}>
+          {/* Mesmo MOTOR do WhatsApp (chatbot, blocos, fila e atendente), no desenho do celular e com a cor do site */}
+          <ChatMotor motor={motorChat} boasVindas={mensagemBoasVindas} corSite="var(--blue, #075fd7)"
+            celular={{ nome: nomeAtendente, avatar: avatarUrl, aoFechar: () => setAberto(false), altura: 620 }} />
         </div>
       )}
 

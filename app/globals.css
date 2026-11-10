@@ -818,3 +818,43 @@ html[data-tema="escuro"] .selo.alerta { background: rgba(227, 41, 60, .18); colo
 html[data-tema="escuro"] .barra-trilho, html[data-tema="escuro"] .adm-log { background: var(--sup2); }
 html[data-tema="escuro"] .adm-login { background: linear-gradient(120deg, #10213b, #0f2a24); }
 html[data-tema="escuro"] .adm-login h1 { color: #ffffff; }
+
+/* >>> TEMA ESCURO AZUL (monorepo) — gerado por scripts/aplicar-tema-sites.py */
+/* ══ TEMA ESCURO AZUL dos SITES — o mesmo das aplicações web (dono, 10/11/2026) ══════════════════════════════════════
+   FONTE ÚNICA no monorepo (packages/layout/src/sites/tema-escuro-azul.css). Os sites recebem este bloco no FIM do
+   app/globals.css por `python scripts/aplicar-tema-sites.py` (sites não usam @hc/*) — não edite a cópia no site.
+   Fundo azul-marinho em degradê (não preto); o que seria BRANCO (letras, linhas, ícones) em tons de azul-claro.
+   Cor das LETRAS configurável: --cor-texto-escuro (o site define pela Configuração; padrão #bcd8ff, azul-claro).
+   Vale com <html data-tema="escuro"> (padrão dos sites, ver components/public/Tema.tsx). */
+html[data-tema="escuro"] body {
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(59, 140, 255, .22) 0%, transparent 45%),
+    radial-gradient(ellipse at 90% 100%, rgba(56, 189, 248, .10) 0%, transparent 40%),
+    linear-gradient(180deg, #0b2557 0%, #071a3d 45%, #040f27 100%) fixed;
+  color: var(--cor-texto-escuro, #bcd8ff);
+}
+html[data-tema="escuro"] .tema {
+  --ink: var(--cor-texto-escuro, #bcd8ff); --muted: #7fa6dc; --bg: #0a2050; --line: rgba(110, 165, 255, .24);
+  --sup: rgba(12, 38, 88, .92); --sup2: #0f2b60;
+  --shadow: 0 12px 32px rgba(2, 8, 30, .45);
+  color: var(--ink);
+}
+html[data-tema="escuro"] h1, html[data-tema="escuro"] h2, html[data-tema="escuro"] h3, html[data-tema="escuro"] h4 { color: color-mix(in srgb, var(--cor-texto-escuro, #bcd8ff) 65%, #ffffff); }
+html[data-tema="escuro"] .topbar { background: rgba(8, 26, 62, .92); border-color: var(--line); }
+html[data-tema="escuro"] .links a, html[data-tema="escuro"] .links button, html[data-tema="escuro"] .busca, html[data-tema="escuro"] .menu-btn { color: var(--cor-texto-escuro, #bcd8ff); }
+html[data-tema="escuro"] .hero { background: transparent; }
+html[data-tema="escuro"] .hero h1 { color: color-mix(in srgb, var(--cor-texto-escuro, #bcd8ff) 50%, #ffffff); }
+html[data-tema="escuro"] .hero p, html[data-tema="escuro"] .chip { color: var(--cor-texto-escuro, #bcd8ff); }
+html[data-tema="escuro"] .hero-bg { background-image: linear-gradient(90deg, rgba(7, 26, 61, .94) 0%, rgba(7, 26, 61, .84) 24%, rgba(7, 26, 61, .45) 38%, rgba(7, 26, 61, 0) 50%), var(--banner); }
+html[data-tema="escuro"] .hero-copy p, html[data-tema="escuro"] .hero-copy .chip { text-shadow: 0 0 10px rgba(7, 26, 61, .9); }
+html[data-tema="escuro"] .cta, html[data-tema="escuro"] .pagina-cab { background: linear-gradient(120deg, #0d2a63, #0a1f4a); border-color: var(--line); }
+html[data-tema="escuro"] .pagina-cab h1 { color: color-mix(in srgb, var(--cor-texto-escuro, #bcd8ff) 50%, #ffffff); }
+html[data-tema="escuro"] .pagina-cab.com-imagem { background: linear-gradient(90deg, rgba(7, 26, 61, .92), rgba(7, 26, 61, .7) 60%, rgba(7, 26, 61, .35)), var(--cab-img) center/cover; }
+html[data-tema="escuro"] .card-noticia .sem-img { background: linear-gradient(120deg, #0f2d66, #0a2050); }
+html[data-tema="escuro"] .chat-painel-body, html[data-tema="escuro"] .chat-body { background: #0a2050; }
+html[data-tema="escuro"] .check, html[data-tema="escuro"] .markdown-body, html[data-tema="escuro"] .campo, html[data-tema="escuro"] .aceite { color: var(--cor-texto-escuro, #bcd8ff); }
+html[data-tema="escuro"] .tag, html[data-tema="escuro"] .categoria, html[data-tema="escuro"] .contato-item, html[data-tema="escuro"] .cidade { color: color-mix(in srgb, var(--cor-texto-escuro, #bcd8ff) 80%, #ffffff); }
+html[data-tema="escuro"] .btn-outline { border-color: rgba(110, 165, 255, .4); color: var(--cor-texto-escuro, #bcd8ff); }
+html[data-tema="escuro"] hr { border-color: var(--line); }
+html[data-tema="escuro"] footer { background: #040f27; color: #9dbde8; }
+/* <<< TEMA ESCURO AZUL (monorepo) */

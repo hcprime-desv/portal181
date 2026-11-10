@@ -233,6 +233,7 @@ export const CAMPOS_CONFIGURACAO: Campo[] = [
   { nome: "corPrimaria", rotulo: "Cor escura (rodapé e menu do admin)", tipo: "cor", placeholder: "#0b1f45" },
   { nome: "tema", rotulo: "Tema do site", tipo: "select", padrao: "automatico", opcoes: [{ valor: "automatico", rotulo: "Automático (segue o aparelho)" }, { valor: "claro", rotulo: "Claro" }, { valor: "escuro", rotulo: "Escuro" }] },
   { nome: "temaBotao", rotulo: "Mostrar botão claro/escuro no topo", tipo: "check", padrao: true },
+  { nome: "corTextoEscuro", rotulo: "Cor das letras no modo escuro", tipo: "cor", placeholder: "#bcd8ff", dica: "Padrão: azul-claro (#bcd8ff). Títulos ficam um tom mais claro da mesma cor." },
 ];
 
 export const MENU_SITE: Campo[] = [

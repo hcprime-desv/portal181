@@ -22,10 +22,11 @@ const hex = (v?: string) => (v && HEX.test(v) ? v : undefined);
 
 // Cores da Configuração → variáveis do CSS padrão (--cor, --destaque,
 // --escura viram --blue, --green e --navy no .tema do globals.css).
-export function coresDoTema(c: { corPrimaria?: string; corSecundaria?: string; corDestaque?: string }): CSSProperties {
+export function coresDoTema(c: { corPrimaria?: string; corSecundaria?: string; corDestaque?: string; corTextoEscuro?: string }): CSSProperties {
   const v: Record<string, string> = {};
   if (hex(c.corSecundaria)) v["--cor"] = c.corSecundaria!;
   if (hex(c.corDestaque)) v["--destaque"] = c.corDestaque!;
   if (hex(c.corPrimaria)) v["--escura"] = c.corPrimaria!;
+  if (hex(c.corTextoEscuro)) v["--cor-texto-escuro"] = c.corTextoEscuro!; // letras do modo escuro (tema azul do monorepo)
   return v as CSSProperties;
 }

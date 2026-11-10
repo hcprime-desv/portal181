@@ -45,7 +45,7 @@ web `apps/portal181` (copiado do DD360) foi APAGADO; as telas dele viraram o
   senha, permissões) e exclusão.
 - Login (`lib/admin/sessao.ts`) = os MESMOS usuários do core360:
   `dados/{tenant}/usuarios` (e-mail ou login), senha PBKDF2 conferida pelo
-  `@hc/nucleo/compartilhado/senhas`, `nivel` "99"/perfil administrador vê tudo,
+  `lib/compartilhado/senhas` (cópia do @hc/nucleo), `nivel` "99"/perfil administrador vê tudo,
   os demais o que o grupo (`grupo.permissions`) libera. Chaves de permissão =
   as do antigo painel (`menu.portal181.*`, `menu.configuracoes.login`,
   `menu.grupo`) — os grupos já gravados valem. Sessão no localStorage
@@ -84,6 +84,12 @@ web `apps/portal181` (copiado do DD360) foi APAGADO; as telas dele viraram o
   `/acompanhar` é derivado (`lib/statusDenuncia.ts`).
 - Chat do site (`components/chat`) → central do OmniChannel (atendido no DD360).
 - Audiência: só contagens agregadas (`lib/audiencia.ts`), lidas no Painel.
+
+## Publicação
+Repositório próprio: https://github.com/hcprime-desv/portal181.git (main) → Render. Na raiz do
+core360: `bash scripts/publicar-site.sh portal181 https://github.com/hcprime-desv/portal181.git "msg" --enviar`.
+Sem dependência de `@hc/*`: `lib/compartilhado/senhas.ts` é cópia do `@hc/nucleo` (não editar aqui).
+Render: `NEXT_PUBLIC_PORTAL181_PATH=PORTAL181` + `NEXT_PUBLIC_FIREBASE_*` nas variáveis do serviço.
 
 ## Build
 - Na raiz: `pnpm --filter portal181 dev` / `build`, ou `pnpm dev`/`pnpm build`

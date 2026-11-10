@@ -121,6 +121,8 @@ export interface Configuracao {
   endereco?: string;
   tema?: TemaSite;
   temaBotao?: boolean;
+  /** cor das letras no modo escuro (hex); padrão azul-claro #bcd8ff */
+  corTextoEscuro?: string;
   menuInicio?: boolean;
   menuDenuncie?: boolean;
   menuProcurados?: boolean;
