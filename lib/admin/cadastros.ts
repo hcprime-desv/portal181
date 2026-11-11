@@ -4,6 +4,7 @@
 // Cadastro novo = uma entrada em CADASTROS (+ item no menu, MENU_ADMIN).
 import { BYTES_SALT, gerarHashSenha, normalizarEmail, problemaSenhaUsuario } from "@/lib/compartilhado/senhas";
 import { getFilterOnce } from "@/lib/firebase/gen";
+import { PERMANENCIAS, ROTULOS_PERMANENCIA, planejarValidade } from "@/lib/compartilhado/validade";
 import { PERMISSOES, ROTULOS_PERMISSAO } from "./sessao";
 
 export type Opcao = { valor: string; rotulo: string };
@@ -22,7 +23,7 @@ export type Campo = {
   padrao?: any;
 };
 
-export type Coluna = { campo: string; rotulo: string; tipo?: "check" | "imagem" | "selo" | "ref" | "lista" };
+export type Coluna = { campo: string; rotulo: string; tipo?: "check" | "imagem" | "selo" | "ref" | "lista" | "validade" };
 
 export type Cadastro = {
   id: string; // rota: /admin/<id>
@@ -186,15 +187,20 @@ export const CADASTROS: Cadastro[] = [
       { nome: "id_grupo", rotulo: "Grupo de permissões", tipo: "select", fonte: { colecao: "grupo", rotulo: "nome" }, dica: "Administrador vê tudo; os outros perfis veem o que o grupo libera." },
       { nome: "status", rotulo: "Situação", tipo: "select", obrigatorio: true, padrao: "ativo", opcoes: [{ valor: "ativo", rotulo: "Ativo" }, { valor: "inativo", rotulo: "Inativo" }, { valor: "bloqueado", rotulo: "Bloqueado" }] },
       { nome: "senha", rotulo: "Senha", tipo: "senha", dica: "Na edição, em branco mantém a senha atual." },
+      // Validade do usuário (dono, 11/11/2026 — global): perpétua ou por tempo; conta a partir de quando salvar.
+      { nome: "permanencia", rotulo: "Tempo de permanência", tipo: "select", padrao: "perpetua", opcoes: PERMANENCIAS.map((v) => ({ valor: v, rotulo: ROTULOS_PERMANENCIA[v] })), dica: "Acesso de teste: o usuário expira ao fim do prazo. Salvar um usuário vencido renova a partir de agora." },
+      { nome: "permanencia_qtd", rotulo: "Quantidade", tipo: "numero" },
     ],
-    colunas: [{ campo: "nome", rotulo: "Nome" }, { campo: "login", rotulo: "Login" }, { campo: "perfil", rotulo: "Perfil" }, { campo: "id_grupo", rotulo: "Grupo", tipo: "ref" }, { campo: "status", rotulo: "Situação", tipo: "selo" }],
+    colunas: [{ campo: "nome", rotulo: "Nome" }, { campo: "login", rotulo: "Login" }, { campo: "perfil", rotulo: "Perfil" }, { campo: "id_grupo", rotulo: "Grupo", tipo: "ref" }, { campo: "expira_em", rotulo: "Validade", tipo: "validade" }, { campo: "status", rotulo: "Situação", tipo: "selo" }],
     preparar: async (d, original) => {
       const login = normalizarEmail(d.login);
       const email = normalizarEmail(d.email || "");
       const outros = (await getFilterOnce("usuarios", "login", login)).filter((u) => String(u.id) !== String(original?.id));
       if (outros.length) return `Já existe um usuário com o login "${login}".`;
       const { senha, ...resto } = d;
-      const saida: Record<string, any> = { ...resto, login, email, nivel: d.perfil === "administrador" ? "99" : "1" };
+      let validade: ReturnType<typeof planejarValidade>;
+      try { validade = planejarValidade(original, { permanencia: d.permanencia, permanencia_qtd: d.permanencia_qtd }); } catch (e: any) { return e?.message || "Informe o tempo de permanência."; }
+      const saida: Record<string, any> = { ...resto, ...validade, login, email, nivel: d.perfil === "administrador" ? "99" : "1" };
       if (senha) {
         const problema = problemaSenhaUsuario(senha);
         if (problema) return problema;
@@ -231,7 +237,7 @@ export const CAMPOS_CONFIGURACAO: Campo[] = [
   { nome: "corSecundaria", rotulo: "Cor principal (botões e links)", tipo: "cor", placeholder: "#075fd7" },
   { nome: "corDestaque", rotulo: "Cor de destaque", tipo: "cor", placeholder: "#07a958" },
   { nome: "corPrimaria", rotulo: "Cor escura (rodapé e menu do admin)", tipo: "cor", placeholder: "#0b1f45" },
-  { nome: "tema", rotulo: "Tema do site", tipo: "select", padrao: "automatico", opcoes: [{ valor: "automatico", rotulo: "Automático (segue o aparelho)" }, { valor: "claro", rotulo: "Claro" }, { valor: "escuro", rotulo: "Escuro" }] },
+  { nome: "tema", rotulo: "Tema do site", tipo: "select", padrao: "escuro", opcoes: [{ valor: "escuro", rotulo: "Escuro (padrão)" }, { valor: "claro", rotulo: "Claro" }, { valor: "automatico", rotulo: "Automático (segue o aparelho)" }] },
   { nome: "temaBotao", rotulo: "Mostrar botão claro/escuro no topo", tipo: "check", padrao: true },
   { nome: "corTextoEscuro", rotulo: "Cor das letras no modo escuro", tipo: "cor", placeholder: "#bcd8ff", dica: "Padrão: azul-claro (#bcd8ff). Títulos ficam um tom mais claro da mesma cor." },
 ];

@@ -857,4 +857,63 @@ html[data-tema="escuro"] .tag, html[data-tema="escuro"] .categoria, html[data-te
 html[data-tema="escuro"] .btn-outline { border-color: rgba(110, 165, 255, .4); color: var(--cor-texto-escuro, #bcd8ff); }
 html[data-tema="escuro"] hr { border-color: var(--line); }
 html[data-tema="escuro"] footer { background: #040f27; color: #9dbde8; }
+
+/* ══ /admin dos SITES = o MESMO visual das aplicações web (dono, 11/11/2026) ══════════════════════════════════════════
+   FONTE ÚNICA no monorepo (packages/layout/src/sites/admin-escuro-azul.css), entra no fim do app/globals.css de cada site
+   junto com o tema escuro azul por `python scripts/aplicar-tema-sites.py` — não edite a cópia no site.
+   Vale para o kit do /admin (packages/layout/src/sites/admin) e para o /admin próprio do Portal 181 (mesmas classes .adm-*).
+   Cores = bloco "TEMA ESCURO AZUL" do styles/globals.scss dos painéis (--ciop-*); fonte = IBM Plex Sans dos painéis
+   (carregada pelo AdminShell com next/font → --fonte-admin). Selos com 7px (regra dos botões). */
+.adm, .adm-login { font-family: var(--fonte-admin, "IBM Plex Sans"), "Segoe UI", Arial, sans-serif; }
+.adm h1, .adm h2, .adm h3, .adm .kpi strong, .adm-login h1 { font-family: var(--fonte-admin, "IBM Plex Sans"), "Segoe UI", Arial, sans-serif; font-weight: 600; letter-spacing: 0; }
+.adm .selo, .adm-login .selo { border-radius: 7px; }
+.adm-lado a, .adm-lado button.adm-item { font-weight: 500; border-radius: 7px; }
+
+html[data-tema="escuro"] .adm, html[data-tema="escuro"] .adm-login {
+  --adm-texto: #bcd8ff; --adm-mudo: #7fa6dc; --adm-borda: rgba(110, 165, 255, .24);
+  --adm-card: rgba(56, 120, 220, .08); --adm-hover: rgba(90, 150, 255, .12);
+  --adm-input: rgba(8, 28, 66, .75); --adm-input-texto: #cfe3ff; --adm-input-borda: rgba(110, 165, 255, .28);
+  --ink: var(--adm-texto); --muted: var(--adm-mudo); --line: var(--adm-borda); --sup: var(--adm-card); --sup2: rgba(8, 28, 66, .75);
+  color: var(--adm-texto);
+}
+html[data-tema="escuro"] .adm { background: transparent; }
+html[data-tema="escuro"] .adm-lado { background: rgba(6, 22, 54, .94); border-right: 1px solid var(--adm-borda); color: var(--adm-texto); }
+html[data-tema="escuro"] .adm-lado a, html[data-tema="escuro"] .adm-lado button.adm-item { color: var(--adm-texto); }
+html[data-tema="escuro"] .adm-lado a:hover, html[data-tema="escuro"] .adm-lado button.adm-item:hover { background: var(--adm-hover); color: #dbeaff; }
+html[data-tema="escuro"] .adm-lado a.ativo { background: var(--adm-hover); color: #dbeaff; box-shadow: inset 0 0 0 1px var(--adm-borda); }
+html[data-tema="escuro"] .adm-grupo, html[data-tema="escuro"] .adm-marca small { color: var(--adm-mudo); }
+html[data-tema="escuro"] .adm-rodape-lado { border-color: var(--adm-borda); }
+html[data-tema="escuro"] .adm-topo { background: rgba(8, 26, 62, .82); border-color: var(--adm-borda); }
+html[data-tema="escuro"] .adm-topo h1, html[data-tema="escuro"] .adm-titulo-form h2, html[data-tema="escuro"] .kpi strong,
+html[data-tema="escuro"] .adm h2, html[data-tema="escuro"] .adm h3, html[data-tema="escuro"] .adm-login h1 { color: #dbeaff; }
+html[data-tema="escuro"] .adm-usuario, html[data-tema="escuro"] .adm-usuario b, html[data-tema="escuro"] .adm-conteudo,
+html[data-tema="escuro"] .adm-tabela td, html[data-tema="escuro"] .adm-check, html[data-tema="escuro"] .adm .campo,
+html[data-tema="escuro"] .adm .campo label, html[data-tema="escuro"] .adm-form legend, html[data-tema="escuro"] .kpi span:not(.icon-circ):not(.adm-kpi-ic) { color: var(--adm-texto); }
+html[data-tema="escuro"] .adm .texto-mut, html[data-tema="escuro"] .adm-tabela th, html[data-tema="escuro"] .adm small,
+html[data-tema="escuro"] .horas-rotulos, html[data-tema="escuro"] .adm-vazio, html[data-tema="escuro"] .adm-login p.sub,
+html[data-tema="escuro"] .adm-login .rodape-login { color: var(--adm-mudo); }
+/* cartões translúcidos com borda azul (como os .card dos painéis) */
+html[data-tema="escuro"] .adm .card, html[data-tema="escuro"] .adm .panel, html[data-tema="escuro"] .adm-aviso,
+html[data-tema="escuro"] .adm-login .card { background: var(--adm-card); border: 1px solid var(--adm-borda); box-shadow: 0 24px 70px rgba(2, 8, 30, .35); color: var(--adm-texto); }
+html[data-tema="escuro"] .adm-tabela th, html[data-tema="escuro"] .adm-tabela td { border-color: var(--adm-borda); }
+html[data-tema="escuro"] .adm-tabela tbody tr:hover td { background: var(--adm-hover); }
+/* campos */
+html[data-tema="escuro"] .adm input, html[data-tema="escuro"] .adm select, html[data-tema="escuro"] .adm textarea,
+html[data-tema="escuro"] .adm-login input { background: var(--adm-input); border-color: var(--adm-input-borda); color: var(--adm-input-texto); }
+html[data-tema="escuro"] .adm input::placeholder, html[data-tema="escuro"] .adm textarea::placeholder, html[data-tema="escuro"] .adm-login input::placeholder { color: #6f93c6; }
+html[data-tema="escuro"] .adm select option { background: #0a2350; color: var(--adm-input-texto); }
+html[data-tema="escuro"] .adm input[type="checkbox"], html[data-tema="escuro"] .adm input[type="radio"], html[data-tema="escuro"] .adm input[type="color"] { background: transparent; }
+/* botões, abas e selos */
+html[data-tema="escuro"] .adm-icone-btn, html[data-tema="escuro"] .adm-md-abas button, html[data-tema="escuro"] .adm-md-previa,
+html[data-tema="escuro"] .adm .btn-outline { background: var(--adm-input); border-color: var(--adm-input-borda); color: var(--adm-texto); }
+html[data-tema="escuro"] .adm-md-abas button.ativa { background: #3b8cff; border-color: #3b8cff; color: #fff; }
+html[data-tema="escuro"] .adm .selo { background: rgba(34, 197, 94, .16); color: #6ee7a0; }
+html[data-tema="escuro"] .adm .selo.off { background: var(--adm-hover); color: var(--adm-mudo); }
+html[data-tema="escuro"] .adm .selo.alerta { background: rgba(227, 41, 60, .18); color: #ff8a96; }
+html[data-tema="escuro"] .barra-trilho, html[data-tema="escuro"] .adm-log { background: var(--adm-input); }
+html[data-tema="escuro"] .adm-msg { background: #0a2350; border: 1px solid var(--adm-borda); color: #dbeaff; }
+html[data-tema="escuro"] .adm-msg.erro { background: #5c1520; }
+/* login: o mesmo fundo em degradê das aplicações */
+html[data-tema="escuro"] .adm-login { background: transparent; }
+html[data-tema="escuro"] .adm-fundo.aberto { background: rgba(2, 8, 30, .6); }
 /* <<< TEMA ESCURO AZUL (monorepo) */

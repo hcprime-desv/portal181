@@ -4,6 +4,7 @@
 // qualquer entrada de lib/admin/cadastros.ts. Lista ao vivo (onSnapshot),
 // grava com id sequencial (mesmo contador dos painéis) e deixa a trilha em
 // logs_auditoria.
+import { textoValidade } from "@/lib/compartilhado/validade";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Pencil, Plus, Save, Trash2 } from "lucide-react";
 import { excluirDoc, getAll, salvarAlteracao, salvarNovo } from "@/lib/firebase/gen";
@@ -33,6 +34,8 @@ function Celula({ def, coluna, r }: { def: Def; coluna: Coluna; r: any }) {
       return <>{Array.isArray(v) ? (v.length > 3 ? `${v.length} itens` : v.join(", ")) : texto(v)}</>;
     case "ref":
       return <CelulaRef def={def} coluna={coluna} valor={v} />;
+    case "validade":
+      return <>{textoValidade({ expira_em: v })}</>;
     case "selo": {
       if (coluna.campo === "urgente") return <span className={`selo${v ? " alerta" : " off"}`}>{v ? "Pop-up (urgente)" : "Banner"}</span>;
       const ok = ["Publicado", "ativo", "Ativo"].includes(v);

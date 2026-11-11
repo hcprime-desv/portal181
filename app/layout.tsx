@@ -25,7 +25,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const c = await listarConfiguracao();
   const tema = temaDe(c.tema);
   return (
-    <html lang="pt-BR" className={`${titulo.variable} ${texto.variable}`} data-tema={tema === "escuro" ? "escuro" : "claro"} suppressHydrationWarning>
+    <html lang="pt-BR" className={`${titulo.variable} ${texto.variable}`} data-tema={tema === "claro" ? "claro" : "escuro"} suppressHydrationWarning>
       <head><script dangerouslySetInnerHTML={{ __html: scriptTema(tema, botaoTemaDe(c.temaBotao)) }} /></head>
       <body>{children}</body>
     </html>

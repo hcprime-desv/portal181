@@ -5,8 +5,9 @@ import type { TemaSite } from "@/types/conteudo";
 
 export const CHAVE_TEMA = "tema-site"; // escolha do visitante (localStorage)
 
-// Sem configuração: segue o aparelho, com o botão sol/lua no topo.
-export const temaDe = (t?: string): TemaSite => (t === "claro" || t === "escuro" ? t : "automatico");
+// Sem configuração: ESCURO (dono, 11/11/2026 — todo site abre escuro), com o botão sol/lua no topo; a troca do visitante
+// fica só no navegador dele (localStorage).
+export const temaDe = (t?: string): TemaSite => (t === "claro" || t === "automatico" ? t : "escuro");
 export const botaoTemaDe = (b?: boolean) => b !== false;
 
 // Script do <head> (app/layout.tsx): aplica o tema ANTES de pintar a página,

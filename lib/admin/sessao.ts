@@ -9,6 +9,7 @@
 // verificação acontece no navegador e o Firestore aceita escrita em
 // dados/{tenant}/**. Ver firestore.rules e o CLAUDE.md do site.
 import { conferirSenha, normalizarEmail } from "@/lib/compartilhado/senhas";
+import { problemaValidade } from "@/lib/compartilhado/validade";
 import { getDocOnce, getFilterOnce, salvarAlteracao, salvarNovo } from "@/lib/firebase/gen";
 
 export const PERMISSOES = {
@@ -97,6 +98,8 @@ export async function entrar(identificador: string, senha: string): Promise<{ ok
   if (!(await conferirSenha(senha, u))) return { ok: false, erro: "Senha incorreta." };
   if (u.status === "bloqueado") return { ok: false, erro: "Usuário bloqueado. Entre em contato com o administrador." };
   if (u.status !== "ativo") return { ok: false, erro: "Usuário desativado. Entre em contato com o administrador." };
+  const vencido = problemaValidade(u); // validade do usuário (perpétua ou por tempo)
+  if (vencido) return { ok: false, erro: vencido };
   const sessao = await montarSessao(u);
   gravarSessao(sessao);
   await salvarAlteracao("usuarios", sessao.id, { ultimo_acesso_em: Date.now() }).catch(() => {});
@@ -109,7 +112,7 @@ export async function entrar(identificador: string, senha: string): Promise<{ ok
 export async function revalidarSessao(s: Sessao): Promise<Sessao | null> {
   const u = await getDocOnce("usuarios", s.id).catch(() => undefined);
   if (u === undefined) return s; // sem rede: mantém
-  if (!u || u.status !== "ativo") { gravarSessao(null); return null; }
+  if (!u || u.status !== "ativo" || problemaValidade(u)) { gravarSessao(null); return null; }
   const nova = { ...(await montarSessao(u)), expira: s.expira };
   gravarSessao(nova);
   return nova;
