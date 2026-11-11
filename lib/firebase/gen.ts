@@ -25,7 +25,12 @@ import {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "./client";
 
-const TENANT_PATH = process.env.NEXT_PUBLIC_PORTAL181_PATH;
+// Banco do site = NEXT_PUBLIC_SITE_PATH, caminho COMPLETO (ex.: sites/p2pcorp, dados/PORTAL181) — mesma convenção do _PATH dos
+// back-ends. Sem barra vale dados/<nome>. `NEXT_PUBLIC_PORTAL181_PATH` (nome antigo) ainda vale como reserva até o deploy usar o nome novo.
+const CAMINHO_SITE = String(process.env.NEXT_PUBLIC_SITE_PATH || process.env.NEXT_PUBLIC_PORTAL181_PATH || "").trim().replace(/^\/+|\/+$/g, "");
+export const BASE_SITE = !CAMINHO_SITE ? "" : CAMINHO_SITE.includes("/") ? CAMINHO_SITE : `dados/${CAMINHO_SITE}`;
+/** Nome do tenant (sem a raiz) */
+export const TENANT_PATH = BASE_SITE ? BASE_SITE.split("/").slice(1).join("/") : undefined;
 
 // Datas SEMPRE em milissegundos (regra do dono, 06/11/2026): Date e
 // Timestamp antigo viram número ao gravar e ao ler (o servidor também só
@@ -43,10 +48,10 @@ function simples<T>(v: T): T {
 function tenantColRef(colecao: string) {
   if (!TENANT_PATH) {
     throw new Error(
-      "NEXT_PUBLIC_PORTAL181_PATH não configurado — defina no .env.local (ou nas env vars do deploy) qual é o tenant deste site antes de ler/gravar no Firestore.",
+      "NEXT_PUBLIC_SITE_PATH não configurado — defina no .env.local (ou nas env vars do deploy) qual é o tenant deste site antes de ler/gravar no Firestore.",
     );
   }
-  return collection(db, `dados/${TENANT_PATH}/${colecao}`);
+  return collection(db, `${BASE_SITE}/${colecao}`);
 }
 
 // Listener em tempo real de uma coleção inteira — mesmo formato do
@@ -84,8 +89,8 @@ export function getDocOn(colecao: string, id: string, callback: (doc: any | null
 // (181-AAAA-NNNNNNNN, ver lib/protocolo.ts), então o número sequencial
 // sai daqui e o formato final é montado por cima.
 export async function addKey(tabela: string): Promise<number> {
-  if (!TENANT_PATH) throw new Error("NEXT_PUBLIC_PORTAL181_PATH não configurado.");
-  const counterRef = doc(db, `dados/${TENANT_PATH}/incrementKey`, tabela);
+  if (!TENANT_PATH) throw new Error("NEXT_PUBLIC_SITE_PATH não configurado.");
+  const counterRef = doc(db, `${BASE_SITE}/incrementKey`, tabela);
   return runTransaction(db, async (t) => {
     const snap = await t.get(counterRef);
     const atual = (snap.data()?.countKey as number | undefined) ?? 0;

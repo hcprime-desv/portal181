@@ -23,13 +23,15 @@ export type MotorSite = {
 /**
  * Motor do chat do site.
  *   db           Firestore do site
- *   tenant       onde roda o chatbot (ex.: "DD360" no Portal 181) — o back-end desse tenant atende o chat
+ *   tenant       onde roda o chatbot — caminho COMPLETO ("dados/DD360", "sites/p2pcorp"); sem barra = dados/<nome>
+ *                (ex.: "DD360" no Portal 181) — o back-end desse tenant (mesmo _PATH) atende o chat
  *   upload       sobe um arquivo e devolve o link público (Storage do site)
  *   garantirSessao  sessão anônima do Firebase Auth, se o site usa (opcional)
  *   chaveLocal   chave do navegador onde fica o contato do visitante ("00" + 13 dígitos — nunca é telefone, sem dado pessoal)
  */
 export function criarMotorSite(p: { db: Firestore; tenant: string; upload: (f: File) => Promise<string>; garantirSessao?: () => Promise<unknown>; chaveLocal?: string }): MotorSite {
-  const col = (c: string) => collection(p.db, `dados/${p.tenant}/${c}`);
+  const base = p.tenant.includes("/") ? p.tenant.replace(/^\/+|\/+$/g, "") : `dados/${p.tenant}`;
+  const col = (c: string) => collection(p.db, `${base}/${c}`);
   const chave = p.chaveLocal || "chat_site_contato";
   const sessao = async () => { try { await p.garantirSessao?.(); } catch { /* sem sessão: segue */ } };
 

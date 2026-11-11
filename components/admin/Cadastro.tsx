@@ -112,7 +112,7 @@ function Lista({ def }: { def: Def }) {
       return getAll(def.colecao, (docs) => setDados(docs));
     } catch {
       setDados([]);
-      avisar("Banco não configurado (NEXT_PUBLIC_PORTAL181_PATH).", true);
+      avisar("Banco não configurado (NEXT_PUBLIC_SITE_PATH).", true);
     }
   }, [def.colecao, avisar]);
 

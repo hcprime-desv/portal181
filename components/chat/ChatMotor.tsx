@@ -136,7 +136,8 @@ function MensagemMotor({ W, m, hora, ativa, aoResponder, aoLocalizar, aoAbrirFor
   if (m.type !== "interactive") return null;
 
   const i = m.interactive || {};
-  const corpo = <>{i.header?.text ? <><b>{i.header.text}</b>{"\n"}</> : null}{negrito(i.body?.text)}{i.footer?.text ? <span style={{ display: "block", fontSize: 12, color: W.suave, marginTop: 4 }}>{i.footer.text}</span> : null}</>;
+  const imgCab = i.header?.type === "image" ? i.header?.image?.link : null; // cabeçalho com imagem (ex.: banner do produto)
+  const corpo = <>{imgCab ? <img src={imgCab} alt="" style={{ display: "block", width: "100%", borderRadius: 6, marginBottom: 6 }} /> : null}{i.header?.text ? <><b>{i.header.text}</b>{"\n"}</> : null}{negrito(i.body?.text)}{i.footer?.text ? <span style={{ display: "block", fontSize: 12, color: W.suave, marginTop: 4 }}>{i.footer.text}</span> : null}</>;
   const balao = <BalaoWhatsapp W={W} hora={hora}>{corpo}</BalaoWhatsapp>;
 
   if (i.type === "button") return <>{balao}{caixa((i.action?.buttons || []).map((b: any) => <React.Fragment key={b.reply?.id}>{botao(b.reply?.title, () => aoResponder({ id: b.reply?.id, titulo: b.reply?.title }, "button_reply"), !ativa)}</React.Fragment>))}</>;
