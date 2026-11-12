@@ -50,6 +50,7 @@ export default function ProcuradosLista({ dadosIniciais }: { dadosIniciais: Proc
                 {p.motivo ?? "Informações oficiais disponíveis"}
                 {p.municipio ? ` · ${p.municipio}` : ""}
               </p>
+              {p.recompensa ? <p style={{ fontWeight: 700 }}>💰 Recompensa: {p.recompensa}</p> : null}
               <Link href={`/denuncie?procuradoId=${p.id}`} className="btn btn-white">
                 Tenho uma informação
               </Link>

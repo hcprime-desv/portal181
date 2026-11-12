@@ -917,3 +917,35 @@ html[data-tema="escuro"] .adm-msg.erro { background: #5c1520; }
 html[data-tema="escuro"] .adm-login { background: transparent; }
 html[data-tema="escuro"] .adm-fundo.aberto { background: rgba(2, 8, 30, .6); }
 /* <<< TEMA ESCURO AZUL (monorepo) */
+
+/* ── LOGIN no modelo das aplicações web (tema escuro azul, marca à esquerda, cartão de vidro à direita) ── */
+.hcl-tela{position:fixed;inset:0;overflow:auto;display:flex;font-family:var(--fonte-admin),"IBM Plex Sans",system-ui,Arial,sans-serif;color:#e6eefc;z-index:50;
+  background:radial-gradient(900px 620px at 88% 92%,rgba(0,150,210,.42),transparent 70%),radial-gradient(700px 520px at 6% 0%,rgba(40,60,170,.5),transparent 70%),linear-gradient(180deg,#060e24 0%,#0a1638 100%)}
+.hcl-tela:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.045) 1px,transparent 1px);background-size:48px 48px}
+.hcl-esq{position:relative;flex:1 1 52%;min-height:100vh;padding:56px 64px;display:flex;flex-direction:column}
+.hcl-marca img{height:64px;width:auto;max-width:320px;object-fit:contain;display:block}
+.hcl-nome{font-size:32px;color:#fff}
+.hcl-meio{margin:auto 0}
+.hcl-tela h1{font-weight:800;font-size:clamp(32px,3.2vw,54px);line-height:1.12;color:#fff;margin:0;letter-spacing:-.5px}
+.hcl-tela h1 em{font-style:normal;color:#00D4FF;text-shadow:0 0 28px rgba(0,212,255,.35)}
+.hcl-destaques{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:32px;max-width:720px}
+.hcl-dest{display:flex;gap:14px;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(140,180,255,.18);border-radius:14px;padding:13px 15px}
+.hcl-dest i{flex:none;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:20px}
+.hcl-dest b{display:block;font-size:15.5px;color:#fff}.hcl-dest span{font-size:13px;color:#9fb3d9}
+.hcl-relogio{min-height:64px}.hcl-relogio small{font-size:14px;color:#9fb3d9}.hcl-relogio b{display:block;font-size:32px;font-weight:500;margin-top:4px;color:#fff}
+.hcl-dir{position:relative;flex:1 1 48%;display:flex;align-items:center;justify-content:center;padding:40px 24px}
+.hcl-dir:before{content:"";position:absolute;left:0;top:12%;bottom:12%;width:1px;background:linear-gradient(transparent,rgba(0,212,255,.4),transparent)}
+.hcl-cartoes{width:100%;max-width:440px}
+.hcl-card{display:grid;gap:8px;background:rgba(13,27,62,.72);border:1px solid rgba(120,170,255,.25);border-radius:18px;color:#e6eefc;backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(0,0,0,.45);padding:30px}
+.hcl-titulo{font-size:24px;font-weight:700;color:#fff;margin:0}.hcl-sub{font-size:14.5px;color:#9fb3d9;margin:0 0 10px}
+.hcl-card label{color:#c9d7f2;font-size:13.5px;font-weight:600;margin-top:6px}
+.hcl-card input{width:100%;height:46px;background:rgba(255,255,255,.06);border:1px solid rgba(140,180,255,.28);color:#e6eefc;border-radius:10px;padding:0 14px;font:inherit;font-size:15px;box-sizing:border-box}
+.hcl-card input::placeholder{color:#7d91b8}.hcl-card input:focus{outline:none;border-color:#00D4FF;box-shadow:0 0 0 3px rgba(0,212,255,.18)}
+.hcl-senha{position:relative}.hcl-senha input{padding-right:46px}.hcl-senha button{position:absolute;right:6px;top:6px;height:34px;width:34px;border:0;background:transparent;cursor:pointer;font-size:16px}
+.hcl-erro{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.4);color:#fecaca;border-radius:10px;padding:10px 12px;font-size:14px}
+.hcl-entrar{margin-top:12px;height:48px;border:0;border-radius:10px;background:linear-gradient(90deg,#1F5FBF,#0E8F6E);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 22px rgba(31,95,191,.3)}
+.hcl-entrar:disabled{opacity:.6}
+.hcl-voltar{text-align:center;margin-top:10px;font-size:14px}.hcl-voltar a{color:#7cc4ff;font-weight:600;text-decoration:none}
+.hcl-rodape{margin-top:16px;text-align:center}.hcl-assina span{font-size:12px;color:#9fb3d9}
+@media (max-width:991px){.hcl-tela{flex-direction:column}.hcl-esq{min-height:auto;padding:28px 20px 8px}.hcl-marca img{height:46px}.hcl-tela h1{font-size:28px;margin-top:18px}
+  .hcl-destaques,.hcl-relogio{display:none}.hcl-dir{padding:20px 16px 32px}.hcl-dir:before{display:none}.hcl-card{padding:24px 20px}}

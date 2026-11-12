@@ -6,6 +6,7 @@ export interface Procurado {
   municipio?: string;
   motivo?: string;
   orgaoResponsavel?: string;
+  recompensa?: string;
   fotoUrl?: string;
   ativo?: boolean;
 }

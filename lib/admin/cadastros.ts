@@ -76,6 +76,7 @@ export const CADASTROS: Cadastro[] = [
       { nome: "idade", rotulo: "Idade", tipo: "numero" },
       { nome: "municipio", rotulo: "Município", tipo: "texto" },
       { nome: "orgaoResponsavel", rotulo: "Órgão responsável", tipo: "texto" },
+      { nome: "recompensa", rotulo: "Recompensa (se houver)", tipo: "texto", placeholder: "Até R$ 10.000,00", dica: "Aparece no site e no reconhecimento facial do WhatsApp." },
       { nome: "motivo", rotulo: "Motivo", tipo: "textarea", largura: 3 },
       { nome: "fotoUrl", rotulo: "Foto", tipo: "imagem", largura: 2 },
       ATIVO,
