@@ -98,13 +98,20 @@ function Login({ aoEntrar }: { aoEntrar: (s: Sessao) => void }) {
       setEntrando(false);
     }
   };
+  // Dia/noite do login (dono, 13/11/2026 — o mesmo botão e a mesma chave das aplicações web): padrão NOITE, só no navegador.
+  const [noite, setNoite] = useState(true);
+  useEffect(() => { try { if (localStorage.getItem("hcl-tema-login") === "dia") setNoite(false); } catch { /* sem storage */ } }, []);
+  const trocarTema = () => setNoite((n) => { try { localStorage.setItem("hcl-tema-login", n ? "dia" : "noite"); } catch { /* ok */ } return !n; });
   const frase = `Disque *181*: a denúncia
 que *protege* a todos.`;
   const destaques = DESTAQUES_SITE;
   return (
-    <div className={`hcl-tela ${plex.variable}`}>
+    <div className={`hcl-tela ${plex.variable} ${noite ? "" : "hcl-dia"}`}>
+      <button type="button" className="hcl-tema" onClick={trocarTema} aria-label={noite ? "Modo dia" : "Modo noite"} title={noite ? "Modo dia" : "Modo noite"}>
+        {noite ? "☀️" : "🌙"}<span>{noite ? "Dia" : "Noite"}</span>
+      </button>
       <section className="hcl-esq">
-        <div className="hcl-marca">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={marca.logoBranco} alt={marca.nome} /></div>
+        <div className="hcl-marca">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={noite ? marca.logoBranco : marca.logo} alt={marca.nome} /></div>
         <div className="hcl-meio">
           <h1><FraseLogin texto={frase} /></h1>
           <div className="hcl-destaques">
