@@ -1,0 +1,86 @@
+{
+ "site": "portal181",
+ "capturado_em": "2026-11-13T00:43:28.935Z",
+ "telas": [
+  {
+   "rota": "/",
+   "titulo": "Viu? Sabe?Denuncie.",
+   "descricao": "",
+   "h1": "Viu? Sabe?Denuncie.",
+   "lead": "Sua informação pode fazer a diferença. Denuncie de forma anônima, segura e protegida.",
+   "imagem": "imagens/manual-01-inicio.png"
+  },
+  {
+   "rota": "/acompanhar",
+   "titulo": "Acompanhar Denúncia",
+   "descricao": "",
+   "h1": "Acompanhar Denúncia",
+   "lead": "Consulte o andamento utilizando o protocolo e o código de segurança.",
+   "imagem": "imagens/manual-02-acompanhar.png"
+  },
+  {
+   "rota": "/busca",
+   "titulo": "Busca",
+   "descricao": "",
+   "h1": "Buscar no site",
+   "lead": "Notícias, procurados, desaparecidos, recompensas e páginas.",
+   "imagem": "imagens/manual-03-busca.png"
+  },
+  {
+   "rota": "/denuncie",
+   "titulo": "Fazer uma Denúncia",
+   "descricao": "",
+   "h1": "Fazer uma Denúncia",
+   "lead": "Você não precisa se identificar. Sua informação é muito importante.",
+   "imagem": "imagens/manual-04-denuncie.png"
+  },
+  {
+   "rota": "/desaparecidos",
+   "titulo": "Pessoas Desaparecidas",
+   "descricao": "",
+   "h1": "Pessoas Desaparecidas",
+   "lead": "Compartilhe informações de forma segura. Cada detalhe pode ajudar uma família.",
+   "imagem": "imagens/manual-05-desaparecidos.png"
+  },
+  {
+   "rota": "/noticias",
+   "titulo": "Notícias e Resultados",
+   "descricao": "",
+   "h1": "Notícias e Resultados",
+   "lead": "Resultados obtidos a partir de denúncias e ações das forças de segurança.",
+   "imagem": "imagens/manual-06-noticias.png"
+  },
+  {
+   "rota": "/procurados",
+   "titulo": "Procurados pela Justiça",
+   "descricao": "",
+   "h1": "Procurados pela Justiça",
+   "lead": "Sua informação pode fazer a diferença. Você não precisa se identificar.",
+   "imagem": "imagens/manual-07-procurados.png"
+  },
+  {
+   "rota": "/recompensas",
+   "titulo": "Recompensas",
+   "descricao": "",
+   "h1": "Recompensas",
+   "lead": "Sua informação pode proteger uma vida. Denuncie de forma anônima, segura e protegida.",
+   "imagem": "imagens/manual-08-recompensas.png"
+  },
+  {
+   "rota": "/sobre",
+   "titulo": "Como funciona o 181",
+   "descricao": "",
+   "h1": "Como funciona o 181",
+   "lead": "O 181 é um canal de comunicação entre o cidadão e a segurança pública.",
+   "imagem": "imagens/manual-09-sobre.png"
+  },
+  {
+   "rota": "/admin",
+   "titulo": "Disque 181: a denúnciaque protege a todos.",
+   "descricao": "",
+   "h1": "Disque 181: a denúnciaque protege a todos.",
+   "lead": "",
+   "imagem": "imagens/manual-10-admin.png"
+  }
+ ]
+}
