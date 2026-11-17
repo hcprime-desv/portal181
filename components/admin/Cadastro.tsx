@@ -1,16 +1,16 @@
 "use client";
+// CÓPIA gerada por scripts/copiar-admin-site.py — NÃO edite aqui: altere em packages/layout/src/sites/admin e copie de novo.
 
-// Cadastro genérico do /admin (lista + busca + formulário + exclusão) para
-// qualquer entrada de lib/admin/cadastros.ts. Lista ao vivo (onSnapshot),
-// grava com id sequencial (mesmo contador dos painéis) e deixa a trilha em
-// logs_auditoria.
-import { textoValidade } from "@/lib/compartilhado/validade";
+// /admin dos SITES — cadastro genérico (lista + busca + formulário + exclusão) para qualquer entrada de
+// SITE_ADMIN.cadastros (lib/admin/site.tsx). Lista ao vivo, id sequencial (mesmo contador dos painéis) e trilha em
+// logs_auditoria. `unico` = registro único (ex.: configuração do site): abre direto o formulário.
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Pencil, Plus, Save, Trash2 } from "lucide-react";
-import { excluirDoc, getAll, salvarAlteracao, salvarNovo } from "@/lib/firebase/gen";
+import { alterar, criar, excluir as excluirDoc, ouvir } from "@/lib/admin/banco";
 import { registrarAuditoria } from "@/lib/admin/sessao";
+import { SITE_ADMIN } from "@/lib/admin/site";
+import type { Cadastro as Def, Coluna } from "@/lib/admin/tipos";
 import { renovarSite } from "@/app/admin/acoes";
-import { cadastroPorId, type Cadastro as Def, type Coluna } from "@/lib/admin/cadastros";
 import { CampoForm, useOpcoes, validar, valoresIniciais } from "./Campos";
 import { Protegido, useAdmin, useTituloAdmin } from "./AdminShell";
 
@@ -29,28 +29,30 @@ function Celula({ def, coluna, r }: { def: Def; coluna: Coluna; r: any }) {
       // eslint-disable-next-line @next/next/no-img-element
       return v ? <img className="mini" src={v} alt="" /> : <span className="texto-mut">—</span>;
     case "check":
-      return <span className={`selo${v === false ? " off" : ""}`}>{v === false ? "Oculto" : "Sim"}</span>;
+      return <span className={`selo${v ? "" : " off"}`}>{v ? "Sim" : "Não"}</span>;
     case "lista":
       return <>{Array.isArray(v) ? (v.length > 3 ? `${v.length} itens` : v.join(", ")) : texto(v)}</>;
     case "ref":
+    case "opcao":
       return <CelulaRef def={def} coluna={coluna} valor={v} />;
-    case "validade":
-      return <>{textoValidade({ expira_em: v })}</>;
+    case "datahora":
+      return <>{Number(v) ? new Date(Number(v)).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—"}</>;
     case "selo": {
-      if (coluna.campo === "urgente") return <span className={`selo${v ? " alerta" : " off"}`}>{v ? "Pop-up (urgente)" : "Banner"}</span>;
-      const ok = ["Publicado", "ativo", "Ativo"].includes(v);
-      return <span className={`selo${ok ? "" : v === "bloqueado" ? " alerta" : " off"}`}>{texto(v)}</span>;
+      const ok = ["publicado", "Publicado", "ativo", "Ativo", "novo", "convertido"].includes(v);
+      const rot = def.campos.find((c) => c.nome === coluna.campo)?.opcoes?.find((o) => o.valor === v)?.rotulo ?? texto(v);
+      return <span className={`selo${ok ? "" : v === "bloqueado" || v === "descartado" ? " alerta" : " off"}`}>{rot}</span>;
     }
     default:
       return <>{texto(v)}</>;
   }
 }
 
-function Formulario({ def, registro, fechar }: { def: Def; registro: any | null; fechar: () => void }) {
+function Formulario({ def, registro, fechar }: { def: Def; registro: any | null; fechar?: () => void }) {
   const { sessao, avisar } = useAdmin();
   const [v, setV] = useState(() => valoresIniciais(def.campos, registro));
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
+  useEffect(() => setV(valoresIniciais(def.campos, registro)), [registro?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const salvar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,16 +68,16 @@ function Formulario({ def, registro, fechar }: { def: Def; registro: any | null;
       }
       const nome = String(dados[def.rotulo] ?? "");
       if (registro) {
-        await salvarAlteracao(def.colecao, String(registro.id), dados);
+        await alterar(def.colecao, String(registro.id), dados);
         registrarAuditoria(sessao, { colecao: def.colecao, id_registro: registro.id, acao: "alteracao", descricao: `${def.singular} "${nome}" alterado(a) no /admin`, dados_anteriores: registro, dados_novos: dados });
         avisar("Registro atualizado.");
       } else {
-        const id = await salvarNovo(def.colecao, dados);
+        const id = await criar(def.colecao, dados);
         registrarAuditoria(sessao, { colecao: def.colecao, id_registro: id, acao: "criacao", descricao: `${def.singular} "${nome}" incluído(a) no /admin`, dados_novos: dados });
         avisar("Registro incluído.");
       }
       renovarSite().catch(() => {});
-      fechar();
+      fechar?.();
     } catch (err) {
       console.error(err);
       setErro("Não foi possível salvar. Confira a conexão e tente de novo.");
@@ -87,15 +89,16 @@ function Formulario({ def, registro, fechar }: { def: Def; registro: any | null;
   return (
     <form className="card adm-form" onSubmit={salvar}>
       <div className="adm-titulo-form">
-        <h2>{registro ? `Editar ${def.singular}` : `Novo(a) ${def.singular}`}</h2>
-        <button type="button" className="btn btn-outline" onClick={fechar}><ArrowLeft size={16} /> Voltar</button>
+        <h2>{def.unico ? def.titulo : registro ? `Editar ${def.singular}` : `Novo(a) ${def.singular}`}</h2>
+        {fechar && <button type="button" className="btn btn-outline" onClick={fechar}><ArrowLeft size={16} /> Voltar</button>}
       </div>
+      {def.unico && def.descricao && <p className="texto-mut" style={{ marginTop: -8 }}>{def.descricao}</p>}
       <div className="grade-form">
         {def.campos.map((c) => <CampoForm key={c.nome} campo={c} valor={v[c.nome]} mudar={(x) => setV((o) => ({ ...o, [c.nome]: x }))} />)}
       </div>
       {erro && <div className="chat-erro" role="alert" style={{ marginTop: 16 }}>{erro}</div>}
       <div className="acoes-form">
-        <button type="button" className="btn btn-outline" onClick={fechar}>Cancelar</button>
+        {fechar && <button type="button" className="btn btn-outline" onClick={fechar}>Cancelar</button>}
         <button type="submit" className="btn btn-primary" disabled={salvando}><Save size={16} /> {salvando ? "Salvando..." : "Salvar"}</button>
       </div>
     </form>
@@ -112,10 +115,10 @@ function Lista({ def }: { def: Def }) {
   useEffect(() => {
     setDados(null); setEditando(null); setBusca("");
     try {
-      return getAll(def.colecao, (docs) => setDados(docs));
+      return ouvir(def.colecao, (docs) => setDados(docs));
     } catch {
       setDados([]);
-      avisar("Banco não configurado (NEXT_PUBLIC_SITE_PATH).", true);
+      avisar("Banco do site não configurado (NEXT_PUBLIC_SITE_PATH).", true);
     }
   }, [def.colecao, avisar]);
 
@@ -125,6 +128,13 @@ function Lista({ def }: { def: Def }) {
     if (!q) return lista;
     return lista.filter((r) => def.colunas.some((c) => String(r[c.campo] ?? "").toLowerCase().includes(q)) || String(r.id) === q);
   }, [dados, busca, def]);
+
+  // registro único (configuração): o ATIVO, senão o primeiro; sem nenhum, formulário vazio
+  if (def.unico) {
+    if (dados === null) return <div className="card adm-vazio">Carregando...</div>;
+    const unico = dados.find((d) => d.status === "ativo") ?? dados[0] ?? null;
+    return <Formulario def={def} registro={unico} />;
+  }
 
   const confirmarExclusao = async () => {
     const r = excluir;
@@ -148,7 +158,7 @@ function Lista({ def }: { def: Def }) {
       {def.descricao && <p className="texto-mut" style={{ margin: 0 }}>{def.descricao}</p>}
       <div className="adm-barra">
         <div className="busca-faq"><input type="search" placeholder={`Buscar em ${def.titulo.toLowerCase()}...`} value={busca} onChange={(e) => setBusca(e.target.value)} aria-label="Buscar" /></div>
-        <button type="button" className="btn btn-primary" onClick={() => setEditando("novo")}><Plus size={18} /> Novo(a) {def.singular}</button>
+        {!def.semNovo && <button type="button" className="btn btn-primary" onClick={() => setEditando("novo")}><Plus size={18} /> Novo(a) {def.singular}</button>}
       </div>
       <div className="card adm-tabela-caixa" style={{ padding: 0 }}>
         {dados === null ? <div className="adm-vazio">Carregando...</div> : visiveis.length === 0 ? (
@@ -181,7 +191,7 @@ function Lista({ def }: { def: Def }) {
               <p className="texto-mut">&ldquo;{excluir[def.rotulo] ?? excluir.id}&rdquo; sai do site na hora. Esta ação não pode ser desfeita.</p>
               <div className="acoes-form">
                 <button type="button" className="btn btn-outline" onClick={() => setExcluir(null)}>Cancelar</button>
-                <button type="button" className="btn btn-red" onClick={confirmarExclusao}><Trash2 size={16} /> Excluir</button>
+                <button type="button" className="btn btn-perigo" onClick={confirmarExclusao}><Trash2 size={16} /> Excluir</button>
               </div>
             </div>
           </div>
@@ -198,6 +208,6 @@ export default function Cadastro({ def }: { def: Def }) {
 
 // Usado pela rota /admin/[cadastro] (a definição tem funções: fica no cliente).
 export function CadastroRota({ id }: { id: string }) {
-  const def = cadastroPorId(id);
-  return def ? <Cadastro def={def} /> : null;
+  const def = SITE_ADMIN.cadastros.find((c) => c.id === id);
+  return def ? <Cadastro def={def} /> : <div className="card adm-vazio">Tela não encontrada.</div>;
 }

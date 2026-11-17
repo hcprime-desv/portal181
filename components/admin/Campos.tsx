@@ -1,20 +1,27 @@
 "use client";
+// CÓPIA gerada por scripts/copiar-admin-site.py — NÃO edite aqui: altere em packages/layout/src/sites/admin e copie de novo.
 
-// Campos do formulário do /admin (mesmo visual de .campo do site padrão).
+// /admin dos SITES — campos do formulário (mesmo visual de .campo do site).
 import { useEffect, useRef, useState } from "react";
 import { ImagePlus, Trash2 } from "lucide-react";
 import Markdown from "@/components/public/Markdown";
-import { getAll, uploadFile } from "@/lib/firebase/gen";
-import type { Campo, Opcao } from "@/lib/admin/cadastros";
+import { ouvir, subirArquivo } from "@/lib/admin/banco";
+import type { Campo, Opcao } from "@/lib/admin/tipos";
 
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 const DATA = /^\d{2}\/\d{2}\/\d{4}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Máscara dd/mm/aaaa enquanto digita.
 const mascaraData = (v: string) => {
   const d = v.replace(/\D/g, "").slice(0, 8);
   return [d.slice(0, 2), d.slice(2, 4), d.slice(4)].filter(Boolean).join("/");
+};
+// milissegundos ↔ valor do <input type="datetime-local"> (hora local)
+const msParaLocal = (ms: any) => {
+  const n = Number(ms);
+  if (!n) return "";
+  const d = new Date(n - new Date(n).getTimezoneOffset() * 60000);
+  return d.toISOString().slice(0, 16);
 };
 
 // Valores iniciais do formulário a partir do registro (ou dos padrões).
@@ -24,6 +31,8 @@ export function valoresIniciais(campos: Campo[], registro: Record<string, any> |
     const atual = registro?.[c.nome];
     if (c.tipo === "senha") v[c.nome] = "";
     else if (c.tipo === "lista") v[c.nome] = Array.isArray(atual) ? atual.join(", ") : atual ?? "";
+    else if (c.tipo === "linhas") v[c.nome] = Array.isArray(atual) ? atual.join("\n") : atual ?? "";
+    else if (c.tipo === "datahora") v[c.nome] = msParaLocal(atual);
     else if (c.tipo === "permissoes") v[c.nome] = Array.isArray(atual) ? atual : [];
     else if (c.tipo === "check") v[c.nome] = atual ?? c.padrao ?? false;
     else v[c.nome] = atual ?? c.padrao ?? "";
@@ -36,7 +45,7 @@ export function validar(campos: Campo[], v: Record<string, any>): Record<string,
   const saida: Record<string, any> = {};
   for (const c of campos) {
     let x = v[c.nome];
-    if (typeof x === "string") x = x.trim();
+    if (typeof x === "string" && c.tipo !== "markdown" && c.tipo !== "textarea" && c.tipo !== "linhas") x = x.trim();
     const vazio = x === "" || x === undefined || x === null || (Array.isArray(x) && !x.length);
     if (c.obrigatorio && vazio && c.tipo !== "check") return `Preencha "${c.rotulo}".`;
     if (!vazio && c.tipo === "data" && !DATA.test(x)) return `"${c.rotulo}": use o formato dd/mm/aaaa.`;
@@ -45,6 +54,8 @@ export function validar(campos: Campo[], v: Record<string, any>): Record<string,
     if (c.tipo === "numero") x = vazio ? null : Number(x);
     if (c.tipo === "numero" && x !== null && Number.isNaN(x)) return `"${c.rotulo}": informe um número.`;
     if (c.tipo === "lista") x = String(x || "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (c.tipo === "linhas") x = String(x || "").split("\n").map((s) => s.trim()).filter(Boolean);
+    if (c.tipo === "datahora") x = vazio ? null : new Date(x).getTime();
     if (c.tipo === "check") x = !!x;
     saida[c.nome] = x;
   }
@@ -57,7 +68,7 @@ export function useOpcoes(campo: Campo): Opcao[] {
   const fonte = campo.fonte;
   useEffect(() => {
     if (!fonte) return;
-    return getAll(fonte.colecao, (docs) =>
+    return ouvir(fonte.colecao, (docs) =>
       setLidas(docs.filter(fonte.filtro ?? (() => true)).map((d) => ({ valor: String(d.id), rotulo: String(d[fonte.rotulo] ?? d.id) }))
         .sort((a, b) => a.rotulo.localeCompare(b.rotulo))),
     );
@@ -72,7 +83,7 @@ function CampoImagem({ valor, mudar }: { valor: string; mudar: (v: string) => vo
   const escolher = async (f?: File) => {
     if (!f) return;
     setEnviando(true); setErro("");
-    try { mudar(await uploadFile(f)); } catch { setErro("Não foi possível enviar a imagem."); }
+    try { mudar(await subirArquivo(f)); } catch { setErro("Não foi possível enviar a imagem."); }
     finally { setEnviando(false); if (ref.current) ref.current.value = ""; }
   };
   return (
@@ -111,7 +122,7 @@ function CampoMarkdown({ valor, mudar, id }: { valor: string; mudar: (v: string)
 export function CampoForm({ campo: c, valor, mudar }: { campo: Campo; valor: any; mudar: (v: any) => void }) {
   const opcoes = useOpcoes(c);
   const id = `campo-${c.nome}`;
-  const classe = `campo${c.largura === 3 ? " largo" : c.largura === 2 ? " dois" : ""}`;
+  const classe = `campo${c.largura === 3 || c.tipo === "markdown" ? " largo" : c.largura === 2 ? " dois" : ""}`;
   if (c.tipo === "check") {
     return (
       <label className={`adm-check${c.largura === 3 ? " largo" : ""}`}>
@@ -137,7 +148,7 @@ export function CampoForm({ campo: c, valor, mudar }: { campo: Campo; valor: any
   return (
     <div className={classe}>
       <label htmlFor={id}>{c.rotulo}{c.obrigatorio && " *"}</label>
-      {c.tipo === "textarea" && <textarea id={id} value={valor} onChange={(e) => mudar(e.target.value)} placeholder={c.placeholder} />}
+      {(c.tipo === "textarea" || c.tipo === "linhas") && <textarea id={id} value={valor} onChange={(e) => mudar(e.target.value)} placeholder={c.placeholder} />}
       {c.tipo === "markdown" && <CampoMarkdown id={id} valor={valor} mudar={mudar} />}
       {c.tipo === "imagem" && <CampoImagem valor={valor} mudar={mudar} />}
       {c.tipo === "select" && (
@@ -153,6 +164,8 @@ export function CampoForm({ campo: c, valor, mudar }: { campo: Campo; valor: any
         </div>
       )}
       {c.tipo === "data" && <input id={id} inputMode="numeric" value={valor} onChange={(e) => mudar(mascaraData(e.target.value))} placeholder="dd/mm/aaaa" />}
+      {c.tipo === "dataiso" && <input id={id} type="date" value={valor} onChange={(e) => mudar(e.target.value)} />}
+      {c.tipo === "datahora" && <input id={id} type="datetime-local" value={valor} onChange={(e) => mudar(e.target.value)} />}
       {c.tipo === "numero" && <input id={id} type="number" value={valor ?? ""} onChange={(e) => mudar(e.target.value)} />}
       {c.tipo === "senha" && <input id={id} type="password" autoComplete="new-password" value={valor} onChange={(e) => mudar(e.target.value)} />}
       {(c.tipo === "texto" || c.tipo === "lista" || c.tipo === "email") && (

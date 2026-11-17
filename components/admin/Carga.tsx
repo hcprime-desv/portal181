@@ -7,7 +7,8 @@
 import { useState } from "react";
 import { Play, Trash2 } from "lucide-react";
 import { excluirDoc, getFilterOnce, salvarNovo } from "@/lib/firebase/gen";
-import { PERMISSOES, registrarAuditoria } from "@/lib/admin/sessao";
+import { registrarAuditoria } from "@/lib/admin/sessao";
+import { PERMISSOES } from "@/lib/admin/portal181";
 import { Protegido, useAdmin, useTituloAdmin } from "./AdminShell";
 import { renovarSite } from "@/app/admin/acoes";
 

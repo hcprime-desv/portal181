@@ -1,47 +1,41 @@
 "use client";
+// CÓPIA gerada por scripts/copiar-admin-site.py — NÃO edite aqui: altere em packages/layout/src/sites/admin e copie de novo.
 
-// Moldura do /admin: login (sem sessão), menu lateral com o que o usuário
-// pode abrir, topo com o título e o usuário, e o aviso flutuante (toast).
-// Mesmas cores e componentes do site (logo do Portal 181, .card, .btn...).
+// /admin dos SITES — moldura: login (sem sessão), menu lateral com o que o usuário pode abrir, topo com o título, o
+// botão claro/escuro e o usuário, e o aviso flutuante. Marca, menu e cadastros vêm de lib/admin/site.tsx (SITE_ADMIN).
 import Link from "next/link";
 import VerificacaoSeguranca from "@/components/admin/Verificacao";
 import { IBM_Plex_Sans } from "next/font/google";
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import {
-  BarChart3, BookOpen, ExternalLink, FileText, Gauge, Layers, LogOut, Megaphone, Menu, Settings,
-  Spade, Trophy, UserCog, UserSearch, Users, ScanSearch, Database, CheckCircle2, X,
-} from "lucide-react";
-import { entrar, lerSessao, pode, revalidarSessao, sair, PERMISSOES, type Sessao } from "@/lib/admin/sessao";
+import { ExternalLink, KeyRound, LogOut, Menu, Moon, Sun, X } from "lucide-react";
+import { entrar, lerSessao, pode, revalidarSessao, sair, type Sessao } from "@/lib/admin/sessao";
+import { SITE_ADMIN } from "@/lib/admin/site";
 
 // Fonte das aplicações web (IBM Plex Sans): o /admin tem o mesmo visual dos painéis (admin-escuro-azul.css).
 const plex = IBM_Plex_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600"], variable: "--fonte-admin", display: "swap" });
-import { BotaoTema } from "@/components/public/Tema";
+import { ouvir } from "@/lib/admin/banco";
 
-type Item = { href: string; rotulo: string; permissao: string; icone: React.ReactNode };
-export const MENU_ADMIN: { grupo: string; itens: Item[] }[] = [
-  { grupo: "Visão geral", itens: [
-    { href: "/admin", rotulo: "Painel", permissao: PERMISSOES.painel, icone: <Gauge size={18} /> },
-    { href: "/admin/relatorios", rotulo: "Relatórios", permissao: PERMISSOES.relatorios, icone: <BarChart3 size={18} /> },
-  ] },
-  { grupo: "Conteúdo", itens: [
-    { href: "/admin/noticias", rotulo: "Notícias", permissao: PERMISSOES.noticias, icone: <FileText size={18} /> },
-    { href: "/admin/procurados", rotulo: "Procurados", permissao: PERMISSOES.procurados, icone: <ScanSearch size={18} /> },
-    { href: "/admin/desaparecidos", rotulo: "Desaparecidos", permissao: PERMISSOES.desaparecidos, icone: <UserSearch size={18} /> },
-    { href: "/admin/recompensas", rotulo: "Recompensas", permissao: PERMISSOES.recompensas, icone: <Trophy size={18} /> },
-    { href: "/admin/resultados", rotulo: "Resultados", permissao: PERMISSOES.resultados, icone: <CheckCircle2 size={18} /> },
-    { href: "/admin/avisos", rotulo: "Avisos", permissao: PERMISSOES.avisos, icone: <Megaphone size={18} /> },
-    { href: "/admin/baralhos", rotulo: "Baralhos", permissao: PERMISSOES.baralhos, icone: <Spade size={18} /> },
-    { href: "/admin/cartas", rotulo: "Cartas do baralho", permissao: PERMISSOES.cartas, icone: <Layers size={18} /> },
-    { href: "/admin/paginas", rotulo: "Páginas", permissao: PERMISSOES.paginas, icone: <BookOpen size={18} /> },
-  ] },
-  { grupo: "Configurações", itens: [
-    { href: "/admin/configuracao", rotulo: "Configuração do site", permissao: PERMISSOES.configuracao, icone: <Settings size={18} /> },
-    { href: "/admin/usuarios", rotulo: "Usuários", permissao: PERMISSOES.usuarios, icone: <Users size={18} /> },
-    { href: "/admin/grupos", rotulo: "Grupos de permissões", permissao: PERMISSOES.grupos, icone: <UserCog size={18} /> },
-    { href: "/admin/carga", rotulo: "Carga de dados de teste", permissao: PERMISSOES.carga, icone: <Database size={18} /> },
-  ] },
-];
+// Marca do /admin: a fixa do site (SITE_ADMIN) ou, nos sites gerados, a da Configuração do site ao vivo (logo, logo para fundo
+// escuro e nome); sem logo, o nome em texto.
+type Marca = { nome: string; logo: string; logoBranco: string };
+function useMarca(): Marca {
+  const [m, setM] = useState<Marca>({ nome: SITE_ADMIN.nome, logo: SITE_ADMIN.logo, logoBranco: SITE_ADMIN.logoBranco });
+  useEffect(() => {
+    if (!SITE_ADMIN.marcaAoVivo) return;
+    try {
+      return ouvir("configuracoes_site", (docs) => {
+        const c = docs.find((d) => d.status === "ativo") ?? docs[0];
+        if (c) setM({ nome: c.nome_site || SITE_ADMIN.nome, logo: c.logo || SITE_ADMIN.logo, logoBranco: c.logo_rodape || c.logo || SITE_ADMIN.logoBranco });
+      });
+    } catch { /* banco não configurado */ }
+  }, []);
+  return m;
+}
+function Logo({ src, nome, className }: { src: string; nome: string; className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return src ? <img className={className} src={src} alt={nome} /> : <span className={`adm-nome-marca ${className ?? ""}`}>{nome}</span>;
+}
 
 type Ctx = { sessao: Sessao | null; avisar: (texto: string, erro?: boolean) => void; titulo: (t: string) => void };
 const AdminCtx = createContext<Ctx>({ sessao: null, avisar: () => {}, titulo: () => {} });
@@ -53,16 +47,30 @@ export function useTituloAdmin(t: string) {
   useEffect(() => titulo(t), [t, titulo]);
 }
 
-const LOGO = "/images/logo-portal181.png";
-const LOGO_BRANCO = "/images/logo-portal181-branco.png";
+// Claro/escuro do /admin: o mesmo atributo e a mesma chave do site (data-tema, tema-site)
+function BotaoTemaAdmin() {
+  const [escuro, setEscuro] = useState(false);
+  useEffect(() => setEscuro(document.documentElement.getAttribute("data-tema") === "escuro"), []);
+  const alternar = () => {
+    const t = escuro ? "claro" : "escuro";
+    document.documentElement.setAttribute("data-tema", t);
+    try { localStorage.setItem("tema-site", t); } catch { /* sem storage */ }
+    setEscuro(!escuro);
+  };
+  return (
+    <button type="button" className="adm-icone-btn" onClick={alternar} aria-label={escuro ? "Usar tema claro" : "Usar tema escuro"} title={escuro ? "Tema claro" : "Tema escuro"}>
+      {escuro ? <Sun size={17} /> : <Moon size={17} />}
+    </button>
+  );
+}
 
 // LOGIN do /admin no MESMO modelo das aplicações web (dono, 12/11/2026 — @hc/layout TelaLogin): tema escuro azul, marca,
-// frase e destaques à esquerda (Portal 181), data e hora, e o cartão de acesso de vidro à direita.
+// frase e destaques à esquerda (SITE_ADMIN.login), data e hora, e o cartão de acesso de vidro à direita.
 const DESTAQUES_SITE = [
-  { icone: "🕵️", cor: "#EF4444", titulo: "Procurados", texto: "Fichas e recompensas publicadas" },
-  { icone: "🔎", cor: "#3B82F6", titulo: "Desaparecidos", texto: "Fotos e informações à população" },
+  { icone: "📝", cor: "#3B82F6", titulo: "Páginas e conteúdo", texto: "Edite o site sem programar" },
   { icone: "📣", cor: "#FACC15", titulo: "Avisos e notícias", texto: "Publicação na hora" },
-  { icone: "🛡️", cor: "#22C55E", titulo: "Anonimato garantido", texto: "Quem denuncia nunca é exposto" },
+  { icone: "💬", cor: "#22C55E", titulo: "Chat e interessados", texto: "Contatos do site num só lugar" },
+  { icone: "👥", cor: "#A855F7", titulo: "Usuários e grupos", texto: "Cada um vê só o que pode" },
 ];
 function FraseLogin({ texto }: { texto: string }) {
   return <>{texto.split("\n").map((l, i) => <span key={i}>{i ? <br /> : null}{l.split(/(\*[^*]+\*)/g).map((p, j) => (p.startsWith("*") && p.endsWith("*") ? <em key={j}>{p.slice(1, -1)}</em> : <span key={j}>{p}</span>))}</span>)}</>;
@@ -76,7 +84,7 @@ function RelogioLogin() {
 }
 
 function Login({ aoEntrar }: { aoEntrar: (s: Sessao) => void }) {
-  const marca = { nome: "Portal 181", logo: LOGO, logoBranco: LOGO_BRANCO };
+  const marca = useMarca();
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [ver, setVer] = useState(false);
@@ -98,20 +106,21 @@ function Login({ aoEntrar }: { aoEntrar: (s: Sessao) => void }) {
       setEntrando(false);
     }
   };
-  // Dia/noite do login (dono, 13/11/2026 — o mesmo botão e a mesma chave das aplicações web): padrão NOITE, só no navegador.
+  // Dia/noite do login (dono, 13/11/2026 — o MESMO botão e a mesma chave da tela de login das aplicações web): padrão NOITE,
+  // a escolha fica só no navegador.
   const [noite, setNoite] = useState(true);
   useEffect(() => { try { if (localStorage.getItem("hcl-tema-login") === "dia") setNoite(false); } catch { /* sem storage */ } }, []);
   const trocarTema = () => setNoite((n) => { try { localStorage.setItem("hcl-tema-login", n ? "dia" : "noite"); } catch { /* ok */ } return !n; });
-  const frase = `Disque *181*: a denúncia
-que *protege* a todos.`;
-  const destaques = DESTAQUES_SITE;
+  const logoLogin = noite ? marca.logoBranco || marca.logo : marca.logo || marca.logoBranco;
+  const frase = SITE_ADMIN.login?.frase || `Gerencie o *conteúdo*\ndo seu *site*.`;
+  const destaques = (SITE_ADMIN.login?.destaques?.length ? SITE_ADMIN.login.destaques : DESTAQUES_SITE).slice(0, 4);
   return (
     <div className={`hcl-tela ${plex.variable} ${noite ? "" : "hcl-dia"}`}>
       <button type="button" className="hcl-tema" onClick={trocarTema} aria-label={noite ? "Modo dia" : "Modo noite"} title={noite ? "Modo dia" : "Modo noite"}>
         {noite ? "☀️" : "🌙"}<span>{noite ? "Dia" : "Noite"}</span>
       </button>
       <section className="hcl-esq">
-        <div className="hcl-marca">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={noite ? marca.logoBranco : marca.logo} alt={marca.nome} /></div>
+        <div className="hcl-marca">{logoLogin ? <Logo src={logoLogin} nome={marca.nome} /> : <b className="hcl-nome">{marca.nome}</b>}</div>
         <div className="hcl-meio">
           <h1><FraseLogin texto={frase} /></h1>
           <div className="hcl-destaques">
@@ -151,6 +160,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const [aberto, setAberto] = useState(false);
   const [tituloAtual, setTitulo] = useState("Painel");
   const [msg, setMsg] = useState<{ texto: string; erro: boolean } | null>(null);
+  const marca = useMarca();
 
   useEffect(() => {
     const s = lerSessao();
@@ -161,12 +171,12 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   useEffect(() => setAberto(false), [rota]);
 
   const avisar = useCallback((texto: string, erro = false) => setMsg({ texto, erro }), []);
-  const titulo = useCallback((t: string) => { setTitulo(t); document.title = `${t} | Admin Portal 181`; }, []);
+  const titulo = useCallback((t: string) => { setTitulo(t); document.title = `${t} | Admin ${marca.nome}`; }, [marca.nome]);
 
   if (sessao === undefined) return <div className={`adm-login ${plex.variable}`}><p className="texto-mut">Carregando...</p></div>;
   if (!sessao) return <Login aoEntrar={setSessao} />;
 
-  const menu = MENU_ADMIN.map((g) => ({ ...g, itens: g.itens.filter((i) => pode(sessao, i.permissao)) })).filter((g) => g.itens.length);
+  const menu = SITE_ADMIN.menu.map((g) => ({ ...g, itens: g.itens.filter((i) => pode(sessao, i.permissao)) })).filter((g) => g.itens.length);
   const ativo = (href: string) => (href === "/admin" ? rota === "/admin" : rota === href || rota.startsWith(href + "/"));
   return (
     <AdminCtx.Provider value={{ sessao, avisar, titulo }}>
@@ -174,8 +184,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <div className={`adm-fundo${aberto ? " aberto" : ""}`} onClick={() => setAberto(false)} />
         <aside className={`adm-lado${aberto ? " aberto" : ""}`} aria-label="Menu do admin">
           <Link className="adm-marca" href="/admin">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={LOGO_BRANCO} alt="Portal 181" />
+            <Logo src={marca.logoBranco} nome={marca.nome} />
             <small>Área restrita</small>
           </Link>
           {menu.map((g) => (
@@ -185,6 +194,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             </div>
           ))}
           <div className="adm-rodape-lado">
+            <Link href="/admin/senha" className={ativo("/admin/senha") ? "ativo" : undefined}><KeyRound size={18} /> Trocar senha</Link>
             <a href="/" target="_blank" rel="noreferrer"><ExternalLink size={18} /> Ver o site</a>
             <button type="button" className="adm-item" onClick={() => { sair(); setSessao(null); }}><LogOut size={18} /> Sair</button>
           </div>
@@ -195,7 +205,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               {aberto ? <X size={24} /> : <Menu size={24} />}
             </button>
             <h1>{tituloAtual}</h1>
-            <BotaoTema sempre />
+            <BotaoTemaAdmin />
             <div className="adm-usuario">
               <span className="nome">Olá, <b>{sessao.nome}</b></span>
               <span className="adm-avatar" aria-hidden>{(sessao.nome || "?").trim().charAt(0).toUpperCase()}</span>
@@ -212,6 +222,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 // Tela que exige uma permissão (sem ela, explica em vez de mostrar).
 export function Protegido({ permissao, children }: { permissao: string; children: React.ReactNode }) {
   const { sessao } = useAdmin();
-  if (!pode(sessao, permissao)) return <div className="card adm-vazio">Seu grupo não tem acesso a esta tela. Fale com o administrador.</div>;
+  if (!pode(sessao, permissao)) return <div className="card adm-vazio">Seu perfil não tem acesso a esta tela. Fale com o administrador.</div>;
   return <>{children}</>;
 }

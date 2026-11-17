@@ -1,11 +1,49 @@
-// Cadastros do /admin — os mesmos campos das telas do antigo painel
+// Cadastros do /admin do Portal 181 (lidos pelo lib/admin/site.tsx do kit) — os mesmos campos das telas do antigo painel
 // apps/portal181 (coleções em dados/{tenant}/...). Cada cadastro é DESCRITO
 // aqui e desenhado pelo componente genérico components/admin/Cadastro.tsx.
 // Cadastro novo = uma entrada em CADASTROS (+ item no menu, MENU_ADMIN).
 import { BYTES_SALT, gerarHashSenha, normalizarEmail, problemaSenhaUsuario } from "@/lib/compartilhado/senhas";
 import { getFilterOnce } from "@/lib/firebase/gen";
 import { PERMANENCIAS, ROTULOS_PERMANENCIA, planejarValidade } from "@/lib/compartilhado/validade";
-import { PERMISSOES, ROTULOS_PERMISSAO } from "./sessao";
+
+// Permissões do /admin do Portal 181 — as chaves do antigo painel apps/portal181 (menu.portal181.*): os grupos já gravados
+// continuam valendo depois da troca para o kit do monorepo (15/11/2026).
+export const PERMISSOES = {
+  painel: "menu.portal181.dashboard",
+  noticias: "menu.portal181.noticias",
+  procurados: "menu.portal181.procurados",
+  desaparecidos: "menu.portal181.desaparecidos",
+  recompensas: "menu.portal181.recompensas",
+  resultados: "menu.portal181.resultados",
+  avisos: "menu.portal181.avisos",
+  baralhos: "menu.portal181.baralhos",
+  cartas: "menu.portal181.baralhoCartas",
+  paginas: "menu.portal181.paginas",
+  relatorios: "menu.portal181.relatorios",
+  configuracao: "menu.portal181.configuracoes",
+  carga: "menu.portal181.cargaDados",
+  usuarios: "menu.configuracoes.login",
+  grupos: "menu.grupo",
+} as const;
+
+// Rótulos para a tela de Grupos (marcar o que cada grupo pode abrir).
+export const ROTULOS_PERMISSAO: Record<string, string> = {
+  [PERMISSOES.painel]: "Painel (audiência)",
+  [PERMISSOES.noticias]: "Notícias",
+  [PERMISSOES.procurados]: "Procurados",
+  [PERMISSOES.desaparecidos]: "Desaparecidos",
+  [PERMISSOES.recompensas]: "Recompensas",
+  [PERMISSOES.resultados]: "Resultados",
+  [PERMISSOES.avisos]: "Avisos (pop-up e banner)",
+  [PERMISSOES.baralhos]: "Baralhos",
+  [PERMISSOES.cartas]: "Cartas do baralho",
+  [PERMISSOES.paginas]: "Páginas",
+  [PERMISSOES.relatorios]: "Relatórios",
+  [PERMISSOES.configuracao]: "Configuração do site",
+  [PERMISSOES.carga]: "Carga de dados de teste",
+  [PERMISSOES.usuarios]: "Usuários",
+  [PERMISSOES.grupos]: "Grupos de permissões",
+};
 
 export type Opcao = { valor: string; rotulo: string };
 

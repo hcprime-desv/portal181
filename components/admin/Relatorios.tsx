@@ -2,9 +2,9 @@
 
 // Relatórios do /admin (só leitura): conteúdo por coleção (total, visíveis,
 // ocultos) e os Resultados por natureza da denúncia e por município.
-import { PERMISSOES } from "@/lib/admin/sessao";
+import { PERMISSOES } from "@/lib/admin/portal181";
 import { Protegido, useTituloAdmin } from "./AdminShell";
-import { useColecoes } from "./Painel";
+import { useColecoes } from "./PainelPortal";
 
 const COLECOES = [
   ["noticias", "Notícias"], ["procurados", "Procurados"], ["desaparecidos", "Desaparecidos"],

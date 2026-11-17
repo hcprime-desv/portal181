@@ -1,5 +1,5 @@
 "use client";
-// CÓPIA de packages/layout/src/sites/admin/Verificacao.tsx (o /admin do Portal 181 é próprio) — altere lá e copie de novo.
+// CÓPIA gerada por scripts/copiar-admin-site.py — NÃO edite aqui: altere em packages/layout/src/sites/admin e copie de novo.
 // VERIFICAÇÃO DE SEGURANÇA INVISÍVEL do login do /admin dos sites (dono, 12/11/2026) — a MESMA dos painéis
 // (packages/components/src/PuzzleCaptcha.tsx; os sites não usam @hc/*, por isso a cópia no kit).
 import React, { useCallback, useEffect, useRef, useState } from "react";

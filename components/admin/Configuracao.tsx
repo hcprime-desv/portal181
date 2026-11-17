@@ -6,8 +6,8 @@
 import { useEffect, useState } from "react";
 import { Save } from "lucide-react";
 import { getDocOnce, salvarAlteracao } from "@/lib/firebase/gen";
-import { PERMISSOES, registrarAuditoria } from "@/lib/admin/sessao";
-import { CAMPOS_CONFIGURACAO, MENU_SITE } from "@/lib/admin/cadastros";
+import { registrarAuditoria } from "@/lib/admin/sessao";
+import { CAMPOS_CONFIGURACAO, MENU_SITE, PERMISSOES } from "@/lib/admin/portal181";
 import { CampoForm, validar, valoresIniciais } from "./Campos";
 import { renovarSite } from "@/app/admin/acoes";
 import { Protegido, useAdmin, useTituloAdmin } from "./AdminShell";
